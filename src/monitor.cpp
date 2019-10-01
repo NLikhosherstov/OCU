@@ -30,11 +30,32 @@ void Monitor::start(){
 	}
 	// Show initial display
 	display.display();
+	delay(500);
+//	test();
+	display.clearDisplay();
+
 	Serial.println(F("Monitor started"));
 }
 
-void Monitor::setTitleText(const String &str){
-	m_title = str;
+void Monitor::showTemperatures(int16_t owen, int16_t space)
+{
+	display.clearDisplay();
+
+	display.setTextSize(1);
+	display.setTextColor(WHITE);
+	display.setCursor(0, 0);
+	display.cp437(true);
+	display.print(F("CurrentData:"));
+
+	String t = "t:" + String(owen) + "  St:" + String(space);
+	display.setTextSize(2);
+	display.setCursor(0, 10);
+	display.print(t);
+
+	display.display();
+}
+
+void Monitor::setTemperatures(int16_t owen, int16_t space){
 }
 
 void Monitor::test(){

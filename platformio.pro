@@ -32,10 +32,18 @@ DEFINES += "__AVR_ATmega328P__"
 OTHER_FILES += platformio.ini
 
 SOURCES += src/main.cpp \
-    src/owen.cpp \
-    src/buttons.cpp
+           src/monitor.cpp \
+           src/buttons.cpp \
+           src/Owen/owen.cpp \
+           src/Owen/programlaunch.cpp \
+    src/Owen/programstop.cpp
+
 HEADERS += src/main.h \
-    src/owen.h \
-    src/buttons.h
-SOURCES += src/monitor.cpp
-HEADERS += src/monitor.h
+           src/monitor.h \
+           src/buttons.h \
+           src/common.h \
+           src/Owen/owen.h \
+           src/Owen/programlaunch.h \
+           src/Owen/timer.h \
+    src/Owen/programstop.h \
+    src/Owen/programbase.h

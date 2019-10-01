@@ -21,7 +21,10 @@ public:
 	Monitor();
 	void start();
 
+	void showTemperatures(int16_t owen, int16_t space);
+
 	void setTitleText(const String &str);
+	void setTemperatures(int16_t owen, int16_t space);
 
 	void test();
 
