@@ -7,8 +7,11 @@ Owen          owen;
 ProgramLaunch programLaunch;
 
 void setup() {
-    Serial.begin(9600);
+    analogWrite(13, 255);
+    Serial.begin(115200);
     monitor.start();
+    checkOwenTemperature();
+
     setupTimerInterrupt();
 }
 
@@ -58,4 +61,18 @@ ISR(TIMER1_COMPA_vect)
     owen.filtrateTemp();
     programLaunch.update(owen);
     // programSD(owen, tExec);
+}
+
+void checkOwenTemperature()
+{
+    double value = owen.readEngineTemp();
+    while(utils::isNum(value) == false){
+        String str = "Owen t sensor: " + String(value);
+        monitor.showError(str);
+
+        delay(100);
+        value = owen.readEngineTemp();
+    }
+    Serial.print(F("Owen temperature: "));
+    Serial.println(value);
 }

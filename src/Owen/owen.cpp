@@ -14,16 +14,13 @@ Owen::Owen(){
 	digitalWrite(m_LPWM, LOW);
 	analogWrite(m_RPWM, 0);
 
-	double value = thermocouple.readCelsius();
-    while(utils::isNum(value) == false)
-        value = thermocouple.readCelsius();
-
-	m_currTemp      = value;
+    m_currTemp      = thermocouple.readCelsius();
 	m_currTempSpeed = 0;
 }
 
-void Owen::readEngineTemp(){
-	m_newTemp = thermocouple.readCelsius();
+double Owen::readEngineTemp(){
+    m_newTemp = thermocouple.readCelsius();
+    return m_newTemp;
 }
 
 double Owen::currTempSpeed(){
@@ -40,6 +37,9 @@ void Owen::filtrateTemp()
 	double dt            =   0.1;
 	double diffThreshold =  30.0; // deg
 
+    if(utils::isNum(m_currTemp) == false)
+        m_currTemp = m_newTemp;
+
 	if (utils::isNum(m_newTemp) == true)
 	{
 		double predictedTemp = m_currTemp + m_currTempSpeed * dt;
@@ -53,7 +53,7 @@ void Owen::filtrateTemp()
 		{
 			m_currTemp = predictedTemp;
 		}
-	}
+    }
 }
 
 void Owen::startEngine(){

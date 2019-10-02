@@ -13,7 +13,7 @@ public:
 
 	//ENGINE TEMPERATURE
 	void	filtrateTemp();
-	void	readEngineTemp();
+    double	readEngineTemp();
 	double  currTempSpeed ();
 	double  currTemp();
 

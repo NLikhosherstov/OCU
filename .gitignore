@@ -1,0 +1,5 @@
+.pio
+*.user
+test/
+*.pdsbak
+*.workspace

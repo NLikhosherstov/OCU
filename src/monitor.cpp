@@ -52,7 +52,24 @@ void Monitor::showTemperatures(int16_t owen, int16_t space)
 	display.setCursor(0, 10);
 	display.print(t);
 
-	display.display();
+    display.display();
+}
+
+void Monitor::showError(const String &str)
+{
+    display.clearDisplay();
+
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0, 0);
+    display.cp437(true);
+    display.print(F("ERROR:"));
+
+    display.setTextSize(1);
+    display.setCursor(0, 10);
+    display.print(str);
+
+    display.display();
 }
 
 void Monitor::setTemperatures(int16_t owen, int16_t space){
