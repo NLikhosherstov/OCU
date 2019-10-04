@@ -6,8 +6,9 @@
 class ProgramStop : public ProgramBase
 {
 public:
-    void  execute();
-    void  update (Owen & owen);
+    void execute(           );
+    void stop   (Owen & owen);
+    void update (Owen & owen);
 
 private:
     void handle_Cooling(Owen &owen);

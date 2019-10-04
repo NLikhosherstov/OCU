@@ -5,30 +5,29 @@ Buttons btns;
 
 Owen          owen;
 ProgramLaunch programLaunch;
+ProgramStop   programStop;
 
 void setup() {
-    analogWrite(13, 255);
     Serial.begin(115200);
     monitor.start();
-    checkOwenTemperature();
 
+    checkOwenTemperature();
     setupTimerInterrupt();
 }
 
 void loop() {
     if(btns.isPwr()){
         Serial.println(F("PWR_BTN"));
-        if (owen.active() == false){
+        if (owen.active() == false && programLaunch.state() == ProgramBase::StandBy)
             programLaunch.execute();
-        }else{
-            owen.setEngineSpeed(0);
-        }
+        else
+            programStop.execute();
     }else if(btns.isUp()){
         Serial.println(F("UP_BTN"));
-        owen.upEngineSpeed(10);
+        owen.upEngineSpeed(20);
     }else if(btns.isDwn()){
         Serial.println(F("DWN_BTN"));
-        owen.downEngineSpeed(10);
+        owen.downEngineSpeed(20);
     }
 
     static unsigned long millis_prev;
@@ -50,17 +49,18 @@ void setupTimerInterrupt(void){
         TCCR1B |= (1 << WGM12 ); // включение в CTC режим
 
         OCR1A   = 1562;         // установка регистра совпадения
-        TCCR1B |= (1 << CS10  ); // Установка битов CS10 и CS12 на коэффициент деления 1024
-        TCCR1B |= (1 << CS12  ); // Установка битов CS10 и CS12 на коэффициент деления 1024
+        TCCR1B |= (1 << CS10  ); // Установка битов CS10 на коэффициент деления 1024
+        TCCR1B |= (1 << CS12  ); // Установка битов CS12 на коэффициент деления 1024
     }
     sei();
 }
 
 ISR(TIMER1_COMPA_vect)
 {
+    owen.changeEngineSpeed();
     owen.filtrateTemp();
     programLaunch.update(owen);
-    // programSD(owen, tExec);
+    programStop.update(owen);
 }
 
 void checkOwenTemperature()
@@ -70,7 +70,7 @@ void checkOwenTemperature()
         String str = "Owen t sensor: " + String(value);
         monitor.showError(str);
 
-        delay(100);
+        delay(300);
         value = owen.readEngineTemp();
     }
     Serial.print(F("Owen temperature: "));

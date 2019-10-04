@@ -8,8 +8,9 @@
 class ProgramLaunch : public ProgramBase
 {
 public:
-	void  execute();
-	void  update (Owen & owen);
+    void execute(           );
+    void stop   (Owen & owen);
+    void update (Owen & owen);
 
 private:
     double m_startTemp = INVALID_TEMP;

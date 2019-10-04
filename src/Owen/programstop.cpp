@@ -19,10 +19,16 @@ void ProgramStop::update(Owen &owen){
     }
 }
 
+void ProgramStop::stop(Owen &/*owen*/)
+{
+
+}
+
 void ProgramStop::handle_Cooling(Owen &owen){
     owen.stopPump();
     if(owen.currTemp() < 50.0){
         owen.stopEngine();
+        owen.setActive(false);
         set_state(StandBy);
     }
 }

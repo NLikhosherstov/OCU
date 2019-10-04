@@ -1,25 +1,23 @@
 #include "owen.h"
 
-int thermoDO = 7;  //он же SO
-int thermoCS = 8;
-int thermoCLK = 9;  //он же SCK
-MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
+//Temperature sensor control pin's
+#define DO  7 //SO
+#define CS  8
+#define CLK 9 //SCK
+MAX6675 tSens(CLK, CS, DO);
 
 Owen::Owen(){
-	m_active   = false;
-	m_engine   = false;
-	m_pump     = false;
-	m_ignition = false;
+    digitalWrite(LPWM, LOW);
+    analogWrite(RPWM, LOW);
 
-	digitalWrite(m_LPWM, LOW);
-	analogWrite(m_RPWM, 0);
+    digitalWrite(PUMP,LOW);
+    digitalWrite(IGNT,LOW);
 
-    m_currTemp      = thermocouple.readCelsius();
-	m_currTempSpeed = 0;
+    m_currTemp = readEngineTemp();
 }
 
 double Owen::readEngineTemp(){
-    m_newTemp = thermocouple.readCelsius();
+    m_newTemp = tSens.readCelsius();
     return m_newTemp;
 }
 
@@ -31,23 +29,18 @@ double Owen::currTemp(){
 	return m_currTemp;
 }
 
-void Owen::filtrateTemp()
-{
-	double k             =   0.8;
-	double dt            =   0.1;
-	double diffThreshold =  30.0; // deg
-
+void Owen::filtrateTemp(){
     if(utils::isNum(m_currTemp) == false)
         m_currTemp = m_newTemp;
 
 	if (utils::isNum(m_newTemp) == true)
 	{
-		double predictedTemp = m_currTemp + m_currTempSpeed * dt;
-		if (abs(m_newTemp - m_currTemp) < diffThreshold)
+        double predictedTemp = m_currTemp + m_currTempSpeed * m_dt;
+        if (abs(m_newTemp - m_currTemp) < m_diffThreshold)
 		{
 			double currTemp = m_currTemp;
-			m_currTemp      = (predictedTemp * k) + (m_newTemp * (1-k));
-			m_currTempSpeed = (m_currTemp - currTemp) / dt;
+            m_currTemp      = (predictedTemp * m_k) + (m_newTemp * (1-m_k));
+            m_currTempSpeed = (m_currTemp - currTemp) / m_dt;
 		}
 		else
 		{
@@ -57,54 +50,55 @@ void Owen::filtrateTemp()
 }
 
 void Owen::startEngine(){
-	setEngineSpeed(255);
+    m_targetPWM = 200;
 }
 
 void Owen::stopEngine(){
-	setEngineSpeed(0);
+    m_targetPWM = 0;
 }
 
 void Owen::upEngineSpeed(const uint8_t &dif){
-	if( (m_currentPWM + dif) < m_pwmResolution){
-		setEngineSpeed(m_currentPWM + dif);
-	}else{
-		setEngineSpeed(m_pwmResolution - 1);
-	}
+    setEngineSpeed(m_targetPWM + dif);
 }
 
 void Owen::downEngineSpeed(const uint8_t &dif){
-	if( (m_currentPWM - dif) >= 0){
-		setEngineSpeed(m_currentPWM - dif);
-	}else{
-		setEngineSpeed(0);
-	}
+    setEngineSpeed(m_targetPWM - dif);
 }
 
 void Owen::setEngineSpeed(uint8_t pwm){
-    if(pwm == m_currentPWM)
+    if(pwm == m_targetPWM)
         return;
 
-	m_currentPWM = pwm;
-	m_engine = pwm > 0;
-	analogWrite(m_RPWM, pwm);
+    if(pwm < 0){
+        m_targetPWM = 0;
+    }else if(pwm >= m_pwmResolution){
+        m_targetPWM = m_pwmResolution-1;
+    }else{
+        m_targetPWM = pwm;
+    }
+
+    m_engine = currentEngineSpeed();
 }
 
 void Owen::startPump(){
 	if(m_pump == false) {
-		Serial.println(F("Pump started"));
+        digitalWrite(PUMP, HIGH);
+        Serial.println(F("Pump started"));
 		m_pump = true;
 	}
 }
 
 void Owen::stopPump(){
 	if(m_pump == true) {
-		Serial.println(F("Pump stopped"));
+        digitalWrite(PUMP, LOW);
+        Serial.println(F("Pump stopped"));
 		m_pump = false;
 	}
 }
 
 void Owen::startIgnition(){
 	if(m_ignition == false) {
+        digitalWrite(IGNT, HIGH);
 		Serial.println(F("Ignition started"));
 		m_ignition = true;
 	}
@@ -112,6 +106,7 @@ void Owen::startIgnition(){
 
 void Owen::stopIgnition(){
 	if(m_ignition == true) {
+        digitalWrite(IGNT, LOW);
 		Serial.println(F("Ignition stoped"));
 		m_ignition = false;
 	}
@@ -122,7 +117,21 @@ bool Owen::active() const{
 }
 
 void Owen::setActive(bool active){
-	m_active = active;
+    m_active = active;
+}
+
+void Owen::changeEngineSpeed()
+{
+    if(m_currentPWM < m_targetPWM){
+        if( (m_currentPWM + m_pwmStep) < m_targetPWM )
+            m_currentPWM += m_pwmStep;
+        else
+            m_currentPWM = m_targetPWM;
+        analogWrite(RPWM, m_currentPWM);
+    }else if(m_currentPWM > m_targetPWM){
+        m_currentPWM = m_targetPWM;
+        analogWrite(RPWM, m_currentPWM);
+    }
 }
 
 int8_t Owen::currentEngineSpeed() const{

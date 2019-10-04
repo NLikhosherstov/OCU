@@ -18,6 +18,7 @@ public:
 
 public:
     virtual void execute() {}
+    virtual void stop   (Owen & /*owen*/) {}
     virtual void update (Owen & /*owen*/) {}
 
     State		state()		  { return m_state;			  }

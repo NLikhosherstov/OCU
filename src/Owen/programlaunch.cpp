@@ -5,6 +5,12 @@ void ProgramLaunch::execute(){
         set_state(FuelSupply);
 }
 
+void ProgramLaunch::stop(Owen & owen)
+{
+    set_state(StandBy);
+    owen.stopIgnition();
+}
+
 void ProgramLaunch::update(Owen & owen){
     updateTimer();
 
@@ -36,7 +42,7 @@ void ProgramLaunch::handle_state_FuelSupply(Owen & owen){
 
 void ProgramLaunch::handle_state_Ignition(Owen & owen){
 	owen.startIgnition();
-    if (timeout() > (15 * 1000)){ //Зажигаем свечу на 15 сек
+    if (timeout() > (20 * 1000)){ //Зажигаем свечу на 15 сек
 		owen.stopIgnition();
         set_state(WarmingUp);
 	}

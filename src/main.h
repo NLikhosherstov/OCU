@@ -8,6 +8,7 @@
 #include "common.h"
 #include "Owen/owen.h"
 #include "Owen/programlaunch.h"
+#include "Owen/programstop.h"
 
 void checkOwenTemperature(void);
 void setupTimerInterrupt(void);
