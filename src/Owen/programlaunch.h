@@ -3,13 +3,11 @@
 
 #include "programbase.h"
 
-#define INVALID_TEMP 1000.0
-
 class ProgramLaunch : public ProgramBase
 {
 public:
-    void execute(           );
-    void stop   (Owen & owen);
+    void execute();
+    void stop   ();
     void update (Owen & owen);
 
 private:

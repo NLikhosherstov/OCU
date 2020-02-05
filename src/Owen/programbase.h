@@ -4,6 +4,8 @@
 #include "owen.h"
 #include "timer.h"
 
+#define INVALID_TEMP 1000.0
+
 class ProgramBase
 {
 public:
@@ -18,7 +20,7 @@ public:
 
 public:
     virtual void execute() {}
-    virtual void stop   (Owen & /*owen*/) {}
+    virtual void stop   () {}
     virtual void update (Owen & /*owen*/) {}
 
     State		state()		  { return m_state;			  }

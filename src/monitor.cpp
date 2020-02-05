@@ -30,11 +30,33 @@ void Monitor::start(){
 	}
 	// Show initial display
 	display.display();
-	delay(500);
-//	test();
+    delay(500);
 	display.clearDisplay();
 
-	Serial.println(F("Monitor started"));
+    Serial.println(F("Monitor started"));
+}
+
+void Monitor::showOwenData(const Owen &owen){
+    display.clearDisplay();
+
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0, 0);
+    display.cp437(true);
+
+    String temperature = "T:" + String((int)owen.currTemp()) + "     dT:" + String((int)owen.currTempSpeed());
+    display.setCursor(0, 0);
+    display.print(temperature);
+
+    String equipment = "Pump:  " + String(owen.pump()?1:0) + "   Ign:" + String(owen.ignition()?1:0);
+    display.setCursor(0, 10);
+    display.print(equipment);
+
+    String engine = "Active:" + String(owen.active()?1:0) + "   PWM:" + String(map(owen.currentEngineSpeed(), 0, 254, 0, 100) );
+    display.setCursor(0, 20);
+    display.print(engine);
+
+    display.display();
 }
 
 void Monitor::showTemperatures(int16_t owen, int16_t space)

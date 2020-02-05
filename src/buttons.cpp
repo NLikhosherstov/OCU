@@ -1,52 +1,61 @@
 #include "buttons.h"
 
-volatile bool up_btn = false;
-volatile bool dn_btn = false;
-volatile bool pwr_btn = false;
+//  2  5  8  11
+//  1  4  7  10
+//  0  3  6  3
+
+static int key_values[12] = {1023  //0  RESET T
+                            ,930   //1  -LEFT
+                            ,867   //2
+                            ,806   //3  -MINUS
+                            ,760   //4  -POWER
+                            ,720   //5  -PLUS
+                            ,685   //6
+                            ,657   //7  -RIGHT
+                            ,632   //8
+                            ,608   //9  -IGNITION
+                            ,589   //10
+                            ,572}; //11 -PUMP
+
+volatile int value = -1;
+volatile int old_value = -1;
+volatile int m_currentButton = -1;
+volatile int oldKeyValue;
+volatile int innerKeyValue;
 
 Buttons::Buttons()
 {
-	pinMode(UP_BTN, INPUT_PULLUP);
-	pinMode(DOWN_BTN, INPUT_PULLUP);
-	pinMode(PWR_BTN, INPUT_PULLUP);
-
-	attachInterrupt(0, Buttons::keyBoardListener, FALLING);
+//	attachInterrupt(0, Buttons::keyBoardListener, FALLING);
+    pinMode(BTN_PIN, INPUT_PULLUP);
 }
 
 void Buttons::keyBoardListener(void){
-	static unsigned long millis_prev;
-	if(millis()-300 > millis_prev){
-		if(digitalRead(UP_BTN) == LOW){
-			up_btn = true;
-		}else if(digitalRead(DOWN_BTN) == LOW){
-			dn_btn = true;
-		}else if(digitalRead(PWR_BTN) == LOW){
-			pwr_btn = true;
-		}
-		millis_prev = millis();
-	}
+    int raw = analogRead(BTN_PIN);
+    int actualKeyValue = get_key(raw);
+
+    if (innerKeyValue != actualKeyValue) {  // Пришло значение отличное от предыдущего
+        innerKeyValue = actualKeyValue;     // Запоминаем новое значение
+    }
+
+    if (actualKeyValue != oldKeyValue) {
+        oldKeyValue = actualKeyValue;         // Запоминаем новое значение
+        m_currentButton = actualKeyValue;
+    }
 }
 
-bool Buttons::isUp(){
-	if(up_btn){
-		up_btn = false;
-		return true;
-	}
-	return false;
+Buttons::Button Buttons::button(){
+    int btn = m_currentButton;
+    m_currentButton = -1;
+    innerKeyValue = -1;
+    return static_cast<Button>(btn);
 }
 
-bool Buttons::isDwn(){
-	if(dn_btn){
-		dn_btn = false;
-		return true;
-	}
-	return false;
-}
-
-bool Buttons::isPwr(){
-	if(pwr_btn){
-		pwr_btn = false;
-		return true;
-	}
-	return false;
+int Buttons::get_key(int value){
+    int error = 10;
+    for (int i(11); i >= 0; --i) {
+      // Если значение в заданном диапазоне values[i]+/-error - считаем, что кнопка определена
+      if ( (value <= (key_values[i] + error)) && (value >= (key_values[i] - error)))
+          return i;
+    }
+    return -1;
 }

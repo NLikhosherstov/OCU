@@ -12,6 +12,8 @@
 #define RPWM PIN3   //engine control pin
 #define LPWM PIN6   //engine control pin
 
+#define MIN_START_PWM 153
+
 class Owen
 {
 public:
@@ -19,38 +21,46 @@ public:
 
 	//ENGINE TEMPERATURE
 	void	filtrateTemp();
+    void    resetTemp();
     double	readEngineTemp();
-	double  currTempSpeed ();
-	double  currTemp();
+    double  currTempSpeed () const;
+    double  currTemp      () const;
 
 	//ENGINE SPEED
 	void startEngine();
 	void stopEngine();
-	void upEngineSpeed(const uint8_t &dif);
-	void downEngineSpeed(const uint8_t &dif);
-	void setEngineSpeed(uint8_t pwm);
-	int8_t currentEngineSpeed() const;
+    void upEngineSpeed(const int &dif);
+    void downEngineSpeed(const int &dif);
+    void setEngineSpeed(int pwm);
+    int currentEngineSpeed() const;
 
     //Call always in interrupt handler
     void changeEngineSpeed();
 
 	//ENGINE PUMP
+    bool pump() const;
 	void startPump();
 	void stopPump();
 
 	//ENGINE IGNITION
+    bool ignition() const;
 	void startIgnition();
 	void stopIgnition();
 
 	//ENGINE STATUS
 	bool active() const;
-	void setActive(bool active);
+    void setActive(bool active);
+
+    void checkIgnitionSafety(); ////проверка времени включения свечи
 
 private:
     bool m_active   = false;
     bool m_engine   = false;
     bool m_pump     = false;
     bool m_ignition = false;
+
+    int m_ignitionTimer = 0;
+    int m_ignitionMaxTick = 600;
 
     int m_currentPWM = 0; //текущяя скорость
     int m_targetPWM  = 0; //целевая скорость
@@ -61,7 +71,7 @@ private:
 
 private:
     const int m_pwmResolution = 255;
-    const int m_pwmStep = 10;
+    const int m_pwmStep = 1;
 
     //Temperature filtrate constant's
     const double m_k             =  0.8;

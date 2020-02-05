@@ -36,7 +36,8 @@ SOURCES += src/main.cpp \
            src/buttons.cpp \
            src/Owen/owen.cpp \
            src/Owen/programlaunch.cpp \
-    src/Owen/programstop.cpp
+    src/Owen/programstop.cpp \
+    src/Owen/programlaunch2.cpp
 
 HEADERS += src/main.h \
            src/monitor.h \
@@ -46,4 +47,5 @@ HEADERS += src/main.h \
            src/Owen/programlaunch.h \
            src/Owen/timer.h \
     src/Owen/programstop.h \
-    src/Owen/programbase.h
+    src/Owen/programbase.h \
+    src/Owen/programlaunch2.h

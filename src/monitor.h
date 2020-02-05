@@ -6,6 +6,8 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+#include "Owen/owen.h"
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
 
@@ -21,6 +23,7 @@ public:
 	Monitor();
 	void start();
 
+    void showOwenData(const Owen &owen);
 	void showTemperatures(int16_t owen, int16_t space);
     void showError(const String &str);
 
