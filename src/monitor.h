@@ -24,17 +24,15 @@ public:
 	void start();
 
     void showOwenData(const Owen &owen);
-	void showTemperatures(int16_t owen, int16_t space);
     void showError(const String &str);
 
-	void setTitleText(const String &str);
-	void setTemperatures(int16_t owen, int16_t space);
+    void setTitleText(const String &str);
 
-	void test();
+    void test();
 
 private:
-	void testdrawline();
-	void testdrawrect();
+    void testdrawline();
+    void testdrawrect();
 	void testfillrect();
 	void testdrawcircle();
 	void testfillcircle();

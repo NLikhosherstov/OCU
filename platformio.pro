@@ -7,6 +7,8 @@ else {
 
 INCLUDEPATH += "$${HOMEDIR}/Projects/Arduino/OCU/include"
 INCLUDEPATH += "$${HOMEDIR}/Projects/Arduino/OCU/src"
+INCLUDEPATH += "$${HOMEDIR}/Projects/Arduino/OCU/.pio/libdeps/nanoatmega328/Adafruit Unified Sensor_ID31"
+INCLUDEPATH += "$${HOMEDIR}/Projects/Arduino/OCU/.pio/libdeps/nanoatmega328/DHT sensor library_ID19"
 INCLUDEPATH += "$${HOMEDIR}/Projects/Arduino/OCU/.pio/libdeps/nanoatmega328/Adafruit SSD1306_ID135"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduinoavr/libraries/__cores__/arduino/Wire/src"
 INCLUDEPATH += "$${HOMEDIR}/Projects/Arduino/OCU/.pio/libdeps/nanoatmega328/Adafruit GFX Library_ID13"
@@ -36,8 +38,9 @@ SOURCES += src/main.cpp \
            src/buttons.cpp \
            src/Owen/owen.cpp \
            src/Owen/programlaunch.cpp \
-    src/Owen/programstop.cpp \
-    src/Owen/programlaunch2.cpp
+           src/Owen/programstop.cpp \
+           src/Owen/programlaunch2.cpp \
+    src/Owen/programthermostat.cpp
 
 HEADERS += src/main.h \
            src/monitor.h \
@@ -46,6 +49,7 @@ HEADERS += src/main.h \
            src/Owen/owen.h \
            src/Owen/programlaunch.h \
            src/Owen/timer.h \
-    src/Owen/programstop.h \
-    src/Owen/programbase.h \
-    src/Owen/programlaunch2.h
+           src/Owen/programstop.h \
+           src/Owen/programbase.h \
+           src/Owen/programlaunch2.h \
+    src/Owen/programthermostat.h

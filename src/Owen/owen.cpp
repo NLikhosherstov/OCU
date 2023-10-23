@@ -11,10 +11,13 @@ Owen::Owen(){
     analogWrite(RPWM, LOW);
 
     pinMode(PUMP, OUTPUT); //подтягиваем к земле
-    digitalWrite(PUMP, HIGH); //Высокий уровень, так как реле срабатывает по 0
+    digitalWrite(PUMP, HIGH); //Высокий уровень, так как реле срабатывает по 0//твердотельное по 1
 
     pinMode(IGNT, OUTPUT);
     digitalWrite(IGNT, HIGH);
+
+    m_currentSpaceT = 0;
+    m_targetSpaceT = 0;
 
     m_currTemp = readEngineTemp();
 }
@@ -97,17 +100,17 @@ void Owen::setEngineSpeed(int pwm){
 
 void Owen::startPump(){
     if(m_pump == false) {
+        m_pump = true;
         digitalWrite(PUMP, LOW);
         Serial.println(F("Pump started"));
-		m_pump = true;
 	}
 }
 
 void Owen::stopPump(){
 	if(m_pump == true) {
+        m_pump = false;
         digitalWrite(PUMP, HIGH);
         Serial.println(F("Pump stopped"));
-		m_pump = false;
 	}
 }
 
@@ -149,6 +152,26 @@ void Owen::checkIgnitionSafety(){
     }
 }
 
+int8_t Owen::targetSpaceT() const
+{
+    return m_targetSpaceT;
+}
+
+void Owen::setTargetSpaceT(const int8_t &targetSpaceT)
+{
+    m_targetSpaceT = targetSpaceT;
+}
+
+int16_t Owen::currentSpaceT() const
+{
+    return m_currentSpaceT;
+}
+
+void Owen::setCurrentSpaceT(const int16_t &currentSpaceT)
+{
+    m_currentSpaceT = currentSpaceT;
+}
+
 bool Owen::ignition() const{
     return m_ignition;
 }
@@ -174,6 +197,7 @@ void Owen::changeEngineSpeed()
         analogWrite(RPWM, m_currentPWM);
     }else if(m_currentPWM > m_targetPWM){
         m_currentPWM = m_targetPWM;
+
         analogWrite(RPWM, m_currentPWM);
     }
 }

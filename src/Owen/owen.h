@@ -38,6 +38,7 @@ public:
     void changeEngineSpeed();
 
 	//ENGINE PUMP
+    void pumpPulse();
     bool pump() const;
 	void startPump();
 	void stopPump();
@@ -53,13 +54,19 @@ public:
 
     void checkIgnitionSafety(); ////проверка времени включения свечи
 
-private:
-    bool m_active   = false;
-    bool m_engine   = false;
-    bool m_pump     = false;
-    bool m_ignition = false;
+    int8_t targetSpaceT() const;
+    void setTargetSpaceT(const int8_t &targetSpaceT);
 
-    int m_ignitionTimer = 0;
+    int16_t currentSpaceT() const;
+    void setCurrentSpaceT(const int16_t &currentSpaceT);
+
+private:
+    bool m_active      = false;
+    bool m_engine      = false;
+    bool m_pump        = false;
+    bool m_ignition    = false;
+
+    int m_ignitionTimer   = 0;
     int m_ignitionMaxTick = 600;
 
     int m_currentPWM = 0; //текущяя скорость
@@ -71,12 +78,15 @@ private:
 
 private:
     const int m_pwmResolution = 255;
-    const int m_pwmStep = 1;
+    const int m_pwmStep       = 2;
 
     //Temperature filtrate constant's
     const double m_k             =  0.8;
     const double m_dt            =  0.1; //sec
     const double m_diffThreshold = 30.0; // deg
+
+    int16_t m_currentSpaceT;
+    int8_t  m_targetSpaceT;
 
 private:
 };

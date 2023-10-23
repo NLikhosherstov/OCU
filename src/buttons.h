@@ -9,15 +9,17 @@ class Buttons
 {
 public:
     enum Button : int8_t{
-        btn_noBtn    = -1,
-        btn_resetT   = 0,
-        btn_left     = 1,
-        btn_minus    = 3,
-        btn_power    = 4,
-        btn_plus     = 5,
-        btn_right    = 7,
-        btn_ignition = 9,
-        btn_pump     = 11
+        btn_noBtn     = -1,
+        btn_resetT    = 0,
+        btn_left      = 1,
+        btn_minus     = 3,
+        btn_power     = 4,
+        btn_plus      = 5,
+        btn_pmpMinus = 6,
+        btn_right     = 7,
+        btn_pmpPlus  = 8,
+        btn_ignition  = 9,
+        btn_pump      = 11
     };
 
 public:

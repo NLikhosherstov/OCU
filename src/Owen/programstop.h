@@ -6,7 +6,7 @@
 class ProgramStop : public ProgramBase
 {
 public:
-    void execute(           );
+    void execute();
     void stop   ();
     void update (Owen & owen);
 

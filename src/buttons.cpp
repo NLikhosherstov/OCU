@@ -1,18 +1,21 @@
 #include "buttons.h"
 
-//  2  5  8  11
-//  1  4  7  10
-//  0  3  6  3
+//--------------
+//  2 \ 5 \ 8 \ 11
+//--------------
+//  1 \ 4 \ 7 \ 10
+//--------------
+//  0 \ 3 \ 6 \ 9
 
-static int key_values[12] = {1023  //0  RESET T
+static int key_values[12] = {1023  //0  -RESET T
                             ,930   //1  -LEFT
                             ,867   //2
                             ,806   //3  -MINUS
                             ,760   //4  -POWER
                             ,720   //5  -PLUS
-                            ,685   //6
+                            ,685   //6  -PUMP_MINUS
                             ,657   //7  -RIGHT
-                            ,632   //8
+                            ,632   //8  -PUMP_PLUS
                             ,608   //9  -IGNITION
                             ,589   //10
                             ,572}; //11 -PUMP

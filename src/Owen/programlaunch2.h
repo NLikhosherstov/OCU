@@ -11,10 +11,14 @@ public:
     void update (Owen & owen);
 
 private:
+    void standBy(Owen & owen);
     void startEngine(Owen & owen);
     void ignition(Owen & owen);
     void fuelSupply(Owen & owen);
     void warmingUp(Owen & owen);
+
+private:
+    bool m_blockPwmControl = false;
 };
 
 #endif // PROGRAMLAUNCH2_H

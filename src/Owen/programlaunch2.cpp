@@ -14,12 +14,23 @@ void ProgramLaunch2::update(Owen &owen){
 
     switch(state())
     {
-        case StandBy       :                    break;
+        case StandBy       : standBy(owen);     break;
         case FuelSupply    : fuelSupply(owen);  break;
         case Ignition      : ignition(owen);    break;
         case WarmingUp     : warmingUp(owen);   break;
         case Cooling       : startEngine(owen); break;
         case SilentCooling :                    break;
+    }
+}
+
+void ProgramLaunch2::standBy(Owen &owen){
+    if(!m_blockPwmControl){
+        if(owen.currentSpaceT() >= (owen.targetSpaceT()+3)){
+            if(owen.currentEngineSpeed() == 255){
+                owen.setEngineSpeed(255/2);
+                m_blockPwmControl = true;
+            }
+        }
     }
 }
 
