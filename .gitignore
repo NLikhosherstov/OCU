@@ -1,5 +1,6 @@
 .pio
 *.user
 test/
+.qtc_clangd/
 *.pdsbak
 *.workspace
