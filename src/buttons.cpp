@@ -1,24 +1,21 @@
 #include "buttons.h"
 
 //--------------
-//  2 \ 5 \ 8 \ 11
+//    \ 0 \
 //--------------
-//  1 \ 4 \ 7 \ 10
+//    \ 1 \
 //--------------
-//  0 \ 3 \ 6 \ 9
+// \ 2 \   \ 3 \
+//--------------
+//     \ 4 \
 
-static int key_values[12] = {1023  //0  -RESET T
-                            ,930   //1  -LEFT
-                            ,867   //2
-                            ,806   //3  -MINUS
-                            ,760   //4  -POWER
-                            ,720   //5  -PLUS
-                            ,685   //6  -PUMP_MINUS
-                            ,657   //7  -RIGHT
-                            ,632   //8  -PUMP_PLUS
-                            ,608   //9  -IGNITION
-                            ,589   //10
-                            ,572}; //11 -PUMP
+static int key_values[12] = {
+                            758    //0  -POWER
+                            ,530   //1
+                            ,355   //2  -IGNITION
+                            ,167   //3  -PUMP
+                            ,17    //4  -RESET T
+                            };
 
 volatile int value = -1;
 volatile int old_value = -1;

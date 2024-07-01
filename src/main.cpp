@@ -35,16 +35,17 @@ void setup() {
 void loop() {
     switch(btns.button()){
         case Buttons::btn_noBtn:                      break;
-        case Buttons::btn_resetT:   onBtnResetT();    break;
-        case Buttons::btn_left:     onBtnLeft();      break;
-        case Buttons::btn_minus:    onBtnMinus();     break;
         case Buttons::btn_power:    onBtnPwr();       break;
-        case Buttons::btn_plus:     onBtnPlus();      break;
-        case Buttons::btn_pmpMinus:                   break;
-        case Buttons::btn_right:    onBtnRight();     break;
-        case Buttons::btn_pmpPlus:                    break;
-        case Buttons::btn_ignition: onBtnIgnition();  break;
+        case Buttons::btn_space:                      break;
         case Buttons::btn_pump:     onBtnPump();      break;
+        case Buttons::btn_ignition: onBtnIgnition();  break;
+        case Buttons::btn_resetT:   onBtnResetT();    break;
+//        case Buttons::btn_left:     onBtnLeft();      break;
+//        case Buttons::btn_minus:    onBtnMinus();     break;
+//        case Buttons::btn_plus:     onBtnPlus();      break;
+//        case Buttons::btn_pmpMinus:                   break;
+//        case Buttons::btn_right:    onBtnRight();     break;
+//        case Buttons::btn_pmpPlus:                    break;
     }
 
     static unsigned long millis_d02;
