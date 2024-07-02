@@ -5,6 +5,8 @@ uint8_t targetT = 20;
 Monitor monitor;
 Buttons btns;
 
+EncButton eb(10, 11, 12);
+
 Owen           owen;
 ProgramLaunch2 programLaunch;
 ProgramStop    programStop;
@@ -14,6 +16,7 @@ DHT dht(DHTPIN, DHT22);
 
 void setup() {
     Serial.begin(115200);
+    eb.setEncReverse(1);
 
     if(EEPROM.read(0) == 255){
         EEPROM.write(0, targetT);
@@ -33,6 +36,12 @@ void setup() {
 }
 
 void loop() {
+    eb.tick();
+    if (eb.left())       onBtnMinus();
+    else if (eb.right()) onBtnPlus();
+//    if (eb.press()) Serial.println("press");
+//    if (eb.click()) Serial.println("click");
+
     switch(btns.button()){
         case Buttons::btn_noBtn:                      break;
         case Buttons::btn_power:    onBtnPwr();       break;
@@ -123,14 +132,14 @@ void onBtnPwr(){
     }
 }
 
-void onBtnPlus(){
-    Serial.println(F("PLUS_BTN"));
-    owen.upEngineSpeed(14);
+void onBtnPlus(int d){
+    owen.upEngineSpeed(d);
+    Serial.println(owen.targetPWM());
 }
 
-void onBtnMinus(){
-    Serial.println(F("MINUS_BTN"));
-    owen.downEngineSpeed(14);
+void onBtnMinus(int d){
+    owen.downEngineSpeed(d);
+    Serial.println(owen.targetPWM());
 }
 
 void onBtnLeft(){

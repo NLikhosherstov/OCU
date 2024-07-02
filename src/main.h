@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <Adafruit_Sensor.h>
+#include <EncButton.h>
 
 #include "DHT.h"
 
@@ -21,8 +22,8 @@ void checkSpaceTemperature(void);
 void setupTimerInterrupt(void);
 
 void onBtnPwr();
-void onBtnPlus();
-void onBtnMinus();
+void onBtnPlus(int d = 3);
+void onBtnMinus(int d = 3);
 void onBtnResetT();
 void onBtnLeft();
 void onBtnRight();

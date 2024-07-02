@@ -60,6 +60,8 @@ public:
     int16_t currentSpaceT() const;
     void setCurrentSpaceT(const int16_t &currentSpaceT);
 
+    int targetPWM() const;
+
 private:
     bool m_active      = false;
     bool m_engine      = false;

@@ -37,7 +37,9 @@ double Owen::currTemp() const{
 
 void Owen::filtrateTemp(){
     if(utils::isNum(m_currTemp) == false)
+    {
         m_currTemp = m_newTemp;
+    }
 
 	if (utils::isNum(m_newTemp) == true)
 	{
@@ -93,7 +95,6 @@ void Owen::setEngineSpeed(int pwm){
     }else{
         m_targetPWM = pwm;
     }
-    Serial.println(m_targetPWM);
 
     m_engine = currentEngineSpeed();
 }
@@ -170,6 +171,10 @@ int16_t Owen::currentSpaceT() const
 void Owen::setCurrentSpaceT(const int16_t &currentSpaceT)
 {
     m_currentSpaceT = currentSpaceT;
+}
+
+int Owen::targetPWM() const{
+    return m_targetPWM;
 }
 
 bool Owen::ignition() const{
