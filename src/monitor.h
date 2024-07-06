@@ -2,20 +2,22 @@
 #define MONITOR_H
 
 #include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+//#include <Wire.h>
+//#include <Adafruit_GFX.h>
+//#include <Adafruit_SSD1306.h>
+#define USE_MICRO_WIRE
+#include <GyverOLED.h>
 
 #include "Owen/owen.h"
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+//#define SCREEN_WIDTH 128 // OLED display width, in pixels
+//#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)#define NUMFLAKES     10 // Number of snowflakes in the animation example
+//#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)#define NUMFLAKES     10 // Number of snowflakes in the animation example
 
-#define LOGO_HEIGHT   16
-#define LOGO_WIDTH    16
-#define NUMFLAKES 3
+//#define LOGO_HEIGHT   16
+//#define LOGO_WIDTH    16
+//#define NUMFLAKES 3
 
 class Monitor
 {

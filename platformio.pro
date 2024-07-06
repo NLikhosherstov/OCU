@@ -11,10 +11,12 @@ INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/MAX6675 library"
 INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/Adafruit Unified Sensor"
 INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/DHT sensor library"
 INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/Adafruit GFX Library"
-INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/Adafruit SSD1306"
+#INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/Adafruit SSD1306"
 INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/Adafruit BusIO"
 INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/EncButton/src"
 INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/GyverIO/src"
+INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/microWire/src"
+INCLUDEPATH += "$$PWD/.pio/libdeps/nanoatmega328/GyverOLED/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduino-avr/libraries/Wire/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduino-avr/libraries/SPI/src"
 INCLUDEPATH += "$${HOMEDIR}/.platformio/packages/framework-arduino-avr/cores/arduino"
@@ -43,7 +45,7 @@ SOURCES += src/main.cpp \
            src/Owen/programlaunch.cpp \
            src/Owen/programstop.cpp \
            src/Owen/programlaunch2.cpp \
-    src/Owen/programthermostat.cpp
+           src/Owen/programthermostat.cpp
 
 HEADERS += src/main.h \
            src/monitor.h \
@@ -55,4 +57,5 @@ HEADERS += src/main.h \
            src/Owen/programstop.h \
            src/Owen/programbase.h \
            src/Owen/programlaunch2.h \
-    src/Owen/programthermostat.h
+           src/Owen/programthermostat.h \
+           src/resource.h

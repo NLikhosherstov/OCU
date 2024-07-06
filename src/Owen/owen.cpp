@@ -32,7 +32,7 @@ double Owen::currTempSpeed() const{
 }
 
 double Owen::currTemp() const{
-	return m_currTemp;
+    return m_currTemp;
 }
 
 void Owen::filtrateTemp(){
@@ -153,28 +153,28 @@ void Owen::checkIgnitionSafety(){
     }
 }
 
-int8_t Owen::targetSpaceT() const
-{
+int8_t Owen::targetSpaceT() const{
     return m_targetSpaceT;
 }
 
-void Owen::setTargetSpaceT(const int8_t &targetSpaceT)
-{
+void Owen::setTargetSpaceT(const int8_t &targetSpaceT){
     m_targetSpaceT = targetSpaceT;
 }
 
-int16_t Owen::currentSpaceT() const
-{
+int16_t Owen::currentSpaceT() const{
     return m_currentSpaceT;
 }
 
-void Owen::setCurrentSpaceT(const int16_t &currentSpaceT)
-{
+void Owen::setCurrentSpaceT(const int16_t &currentSpaceT){
     m_currentSpaceT = currentSpaceT;
 }
 
 int Owen::targetPWM() const{
     return m_targetPWM;
+}
+
+double Owen::currentFuelRate() const{
+    return m_currentFuelRate;
 }
 
 bool Owen::ignition() const{
@@ -204,6 +204,28 @@ void Owen::changeEngineSpeed()
         m_currentPWM = m_targetPWM;
 
         analogWrite(RPWM, m_currentPWM);
+    }
+    if(m_currentPWM > 0)
+        m_targetPeriod = 1000/((PUMP_MAX_FLOW_SEC * map(currentEngineSpeed(), 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION);
+    else
+        m_targetPeriod = 0;
+
+    Serial.println("Fuel period: " + String((int)m_targetPeriod));
+
+    if(m_targetPeriod)
+        m_currentFuelRate = ((PUMP_SINGLE_ACTUATION*(1000/m_targetPeriod))/1000)*60*60;
+    else
+        m_currentFuelRate = 0;
+}
+
+void Owen::pumpPulse(){
+    if(m_targetPeriod && (millis() > m_targetPeriod) && millis()-m_targetPeriod > m_millis_pumpTimer){
+        if(pump()){
+
+        }else{
+
+        }
+        m_millis_pumpTimer = millis();
     }
 }
 

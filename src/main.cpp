@@ -2,6 +2,7 @@
 
 uint8_t targetT = 20;
 
+//GyverOLED<SSD1306_128x64> monitor;
 Monitor monitor;
 Buttons btns;
 
@@ -36,11 +37,10 @@ void setup() {
 }
 
 void loop() {
+    owen.pumpPulse();
     eb.tick();
     if (eb.left())       onBtnMinus();
     else if (eb.right()) onBtnPlus();
-//    if (eb.press()) Serial.println("press");
-//    if (eb.click()) Serial.println("click");
 
     switch(btns.button()){
         case Buttons::btn_noBtn:                      break;
@@ -49,12 +49,6 @@ void loop() {
         case Buttons::btn_pump:     onBtnPump();      break;
         case Buttons::btn_ignition: onBtnIgnition();  break;
         case Buttons::btn_resetT:   onBtnResetT();    break;
-//        case Buttons::btn_left:     onBtnLeft();      break;
-//        case Buttons::btn_minus:    onBtnMinus();     break;
-//        case Buttons::btn_plus:     onBtnPlus();      break;
-//        case Buttons::btn_pmpMinus:                   break;
-//        case Buttons::btn_right:    onBtnRight();     break;
-//        case Buttons::btn_pmpPlus:                    break;
     }
 
     static unsigned long millis_d02;

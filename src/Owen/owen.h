@@ -14,6 +14,10 @@
 
 #define MIN_START_PWM 153
 
+#define PUMP_SINGLE_ACTUATION 0.022  // ml
+#define PUMP_MAX_FLOW_SEC     0.6216 // ml/sec
+#define PUMP_ACTUATION_PERIOD 18     // msec
+
 class Owen
 {
 public:
@@ -27,6 +31,7 @@ public:
     double  currTemp      () const;
 
 	//ENGINE SPEED
+    void tick();
 	void startEngine();
 	void stopEngine();
     void upEngineSpeed(const int &dif);
@@ -62,6 +67,8 @@ public:
 
     int targetPWM() const;
 
+    double currentFuelRate() const;
+
 private:
     bool m_active      = false;
     bool m_engine      = false;
@@ -73,6 +80,10 @@ private:
 
     int m_currentPWM = 0; //текущяя скорость
     int m_targetPWM  = 0; //целевая скорость
+
+    double m_currentFuelRate = 0; //текущий расход
+    unsigned long m_millis_pumpTimer = 0;
+    unsigned long m_targetPeriod = 0;
 
 	double m_newTemp;
 	double m_currTemp;
