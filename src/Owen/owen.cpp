@@ -14,7 +14,7 @@ Owen::Owen(){
     digitalWrite(PUMP, HIGH); //Высокий уровень, так как реле срабатывает по 0//твердотельное по 1
 
     pinMode(IGNT, OUTPUT);
-    digitalWrite(IGNT, HIGH);
+    digitalWrite(IGNT, LOW);
 
     m_currentSpaceT = 0;
     m_targetSpaceT = 0;
@@ -117,7 +117,7 @@ void Owen::stopPump(){
 
 void Owen::startIgnition(){
     if(m_ignition == false) {
-        digitalWrite(IGNT, LOW);
+        digitalWrite(IGNT, HIGH);
 		Serial.println(F("Ignition started"));
 		m_ignition = true;
 	}
@@ -125,7 +125,7 @@ void Owen::startIgnition(){
 
 void Owen::stopIgnition(){
     if(m_ignition == true) {
-        digitalWrite(IGNT, HIGH);
+        digitalWrite(IGNT, LOW);
 		Serial.println(F("Ignition stoped"));
 		m_ignition = false;
 	}
