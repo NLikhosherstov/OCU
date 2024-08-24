@@ -11,7 +11,7 @@ Owen::Owen(){
     analogWrite(RPWM, LOW);
 
     pinMode(PUMP, OUTPUT); //подтягиваем к земле
-    digitalWrite(PUMP, HIGH); //Высокий уровень, так как реле срабатывает по 0//твердотельное по 1
+    digitalWrite(PUMP, LOW); //Высокий уровень, так как реле срабатывает по 0//твердотельное по 1
 
     pinMode(IGNT, OUTPUT);
     digitalWrite(IGNT, LOW);
@@ -102,16 +102,16 @@ void Owen::setEngineSpeed(int pwm){
 void Owen::startPump(){
     if(m_pump == false) {
         m_pump = true;
-        digitalWrite(PUMP, LOW);
-        Serial.println(F("Pump started"));
+//        digitalWrite(PUMP, LOW);
+//        Serial.println(F("Pump started"));
 	}
 }
 
 void Owen::stopPump(){
 	if(m_pump == true) {
         m_pump = false;
-        digitalWrite(PUMP, HIGH);
-        Serial.println(F("Pump stopped"));
+        digitalWrite(PUMP, LOW);
+//        Serial.println(F("Pump stopped"));
 	}
 }
 
@@ -177,6 +177,16 @@ double Owen::currentFuelRate() const{
     return m_currentFuelRate;
 }
 
+bool Owen::pumpActuated() const
+{
+    return m_pumpActuated;
+}
+
+void Owen::setPumpActuated(bool newPumpActuated)
+{
+    m_pumpActuated = newPumpActuated;
+}
+
 bool Owen::ignition() const{
     return m_ignition;
 }
@@ -210,7 +220,7 @@ void Owen::changeEngineSpeed()
     else
         m_targetPeriod = 0;
 
-    Serial.println("Fuel period: " + String((int)m_targetPeriod));
+//    Serial.println("Fuel period: " + String((int)m_targetPeriod));
 
     if(m_targetPeriod)
         m_currentFuelRate = ((PUMP_SINGLE_ACTUATION*(1000/m_targetPeriod))/1000)*60*60;
@@ -219,13 +229,24 @@ void Owen::changeEngineSpeed()
 }
 
 void Owen::pumpPulse(){
-    if(m_targetPeriod && (millis() > m_targetPeriod) && millis()-m_targetPeriod > m_millis_pumpTimer){
-        if(pump()){
 
-        }else{
-
+    if(pump() && m_targetPeriod && (millis() > m_targetPeriod)){
+        if( pumpActuated() && ((millis()-m_millis_pumpTimer) > PUMP_ACTUATION_HALF_PERIOD) ){ //Второй полупериод
+            digitalWrite(PUMP, LOW);
+            setPumpActuated(false);
+//                Serial.println(F("Pump: 0"));
+        }else if( millis()-m_targetPeriod > m_millis_pumpTimer){
+            digitalWrite(PUMP, HIGH);
+            setPumpActuated(true);
+//                Serial.println(F("Pump: 1"));
         }
-        m_millis_pumpTimer = millis();
+        if(millis()-m_targetPeriod > m_millis_pumpTimer)
+            m_millis_pumpTimer = millis();
+    }
+    if(!pump() && pumpActuated()){
+        digitalWrite(PUMP, LOW);
+        setPumpActuated(false);
+//      Serial.println(F("Pump: 0"));
     }
 }
 

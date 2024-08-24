@@ -39,8 +39,13 @@ void setup() {
 void loop() {
     owen.pumpPulse();
     eb.tick();
-    if (eb.left())       onBtnMinus();
-    else if (eb.right()) onBtnPlus();
+
+    int pwmDelta = 3;
+    if(eb.fast())
+        pwmDelta = 10;
+
+    if (eb.left())       onBtnMinus(pwmDelta);
+    else if (eb.right()) onBtnPlus(pwmDelta);
 
     switch(btns.button()){
         case Buttons::btn_noBtn:                      break;
@@ -128,12 +133,12 @@ void onBtnPwr(){
 
 void onBtnPlus(int d){
     owen.upEngineSpeed(d);
-    Serial.println(owen.targetPWM());
+//    Serial.println(owen.targetPWM());
 }
 
 void onBtnMinus(int d){
     owen.downEngineSpeed(d);
-    Serial.println(owen.targetPWM());
+//    Serial.println(owen.targetPWM());
 }
 
 void onBtnLeft(){

@@ -16,7 +16,8 @@
 
 #define PUMP_SINGLE_ACTUATION 0.022  // ml
 #define PUMP_MAX_FLOW_SEC     0.6216 // ml/sec
-#define PUMP_ACTUATION_PERIOD 18     // msec
+#define PUMP_ACTUATION_PERIOD 100    // msec 36
+#define PUMP_ACTUATION_HALF_PERIOD PUMP_ACTUATION_PERIOD/2     // msec
 
 class Owen
 {
@@ -69,11 +70,16 @@ public:
 
     double currentFuelRate() const;
 
+    bool pumpActuated() const;
+    void setPumpActuated(bool newPumpActuated);
+
 private:
     bool m_active      = false;
     bool m_engine      = false;
     bool m_pump        = false;
     bool m_ignition    = false;
+
+    bool m_pumpActuated = false;
 
     int m_ignitionTimer   = 0;
     int m_ignitionMaxTick = 600;
@@ -91,7 +97,7 @@ private:
 
 private:
     const int m_pwmResolution = 255;
-    const int m_pwmStep       = 2;
+    const int m_pwmStep       = 4;
 
     //Temperature filtrate constant's
     const double m_k             =  0.8;
