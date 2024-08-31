@@ -1,8 +1,9 @@
 #include "main.h"
 
+#include <GyverTimers.h>
+
 uint8_t targetT = 20;
 
-//GyverOLED<SSD1306_128x64> monitor;
 Monitor monitor;
 Buttons btns;
 
@@ -34,10 +35,12 @@ void setup() {
 
     checkOwenTemperature();
     setupTimerInterrupt();
+
+    Timer2.setPeriod(1000);
+    Timer2.enableISR(CHANNEL_A);
 }
 
 void loop() {
-    owen.pumpPulse();
     eb.tick();
 
     int pwmDelta = 3;
@@ -55,6 +58,13 @@ void loop() {
         case Buttons::btn_ignition: onBtnIgnition();  break;
         case Buttons::btn_resetT:   onBtnResetT();    break;
     }
+
+//    static unsigned long micros_d1;
+//    static unsigned long d0 = 1000;
+//    if((micros() > d0) && micros()-d0 > micros_d1){
+//        micros_d1 = micros();
+//        owen.pumpPulse();
+//    }
 
     static unsigned long millis_d02;
     static unsigned long d1 = 200;
@@ -95,6 +105,10 @@ ISR(TIMER1_COMPA_vect){
     owen.filtrateTemp();
     programLaunch.update(owen);
     programStop.update(owen);
+}
+
+ISR(TIMER2_A) {
+    owen.pumpPulse();
 }
 
 void checkOwenTemperature(){

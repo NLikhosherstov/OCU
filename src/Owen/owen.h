@@ -14,9 +14,9 @@
 
 #define MIN_START_PWM 153
 
-#define PUMP_SINGLE_ACTUATION 0.022  // ml
-#define PUMP_MAX_FLOW_SEC     0.6216 // ml/sec
-#define PUMP_ACTUATION_PERIOD 100    // msec 36
+#define PUMP_SINGLE_ACTUATION 0.064  // ml per one phase 6.4ml/100
+#define PUMP_MAX_FLOW         0.62 // ml/sec (0.6216 ml/sec = 2.23 l/h)
+#define PUMP_ACTUATION_PERIOD 75    // msec 36
 #define PUMP_ACTUATION_HALF_PERIOD PUMP_ACTUATION_PERIOD/2     // msec
 
 class Owen
