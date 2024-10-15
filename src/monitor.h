@@ -32,6 +32,9 @@ public:
 
     void test();
 
+    bool fuelRateSetting() const;
+    void setFuelRateSetting(bool newFuelRateSetting);
+
 private:
     void testdrawline();
     void testdrawrect();
@@ -51,6 +54,8 @@ private:
 private:
 	String m_title;
 	String m_body;
+
+    bool m_fuelRateSetting = false;
 };
 
 #endif // MONITOR_H

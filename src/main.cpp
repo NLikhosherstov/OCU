@@ -41,15 +41,6 @@ void setup() {
 }
 
 void loop() {
-    eb.tick();
-
-    int pwmDelta = 3;
-    if(eb.fast())
-        pwmDelta = 10;
-
-    if (eb.left())       onBtnMinus(pwmDelta);
-    else if (eb.right()) onBtnPlus(pwmDelta);
-
     switch(btns.button()){
         case Buttons::btn_noBtn:                      break;
         case Buttons::btn_power:    onBtnPwr();       break;
@@ -58,13 +49,6 @@ void loop() {
         case Buttons::btn_ignition: onBtnIgnition();  break;
         case Buttons::btn_resetT:   onBtnResetT();    break;
     }
-
-//    static unsigned long micros_d1;
-//    static unsigned long d0 = 1000;
-//    if((micros() > d0) && micros()-d0 > micros_d1){
-//        micros_d1 = micros();
-//        owen.pumpPulse();
-//    }
 
     static unsigned long millis_d02;
     static unsigned long d1 = 200;
@@ -109,6 +93,12 @@ ISR(TIMER1_COMPA_vect){
 
 ISR(TIMER2_A) {
     owen.pumpPulse();
+
+    eb.tick();
+    if (eb.left())       onBtnMinus(eb.fast() ? 5 : 1);
+    else if (eb.right()) onBtnPlus(eb.fast() ? 5 : 1);
+    else if (eb.click()) onEncoderClick();
+    else if (eb.hold())  onEncoderLongClick();
 }
 
 void checkOwenTemperature(){
@@ -146,13 +136,19 @@ void onBtnPwr(){
 }
 
 void onBtnPlus(int d){
-    owen.upEngineSpeed(d);
-//    Serial.println(owen.targetPWM());
+    if(monitor.fuelRateSetting()){
+        owen.addFuelCorrection(d);
+    }else{
+        owen.upEngineSpeed(d);
+    }
 }
 
 void onBtnMinus(int d){
-    owen.downEngineSpeed(d);
-//    Serial.println(owen.targetPWM());
+    if(monitor.fuelRateSetting()){
+        owen.addFuelCorrection(-d);
+    }else{
+        owen.downEngineSpeed(d);
+    }
 }
 
 void onBtnLeft(){
@@ -185,4 +181,16 @@ void onBtnPump(){
     programStop.stop();
     Serial.println(F("PUMP_BTN"));
     owen.pump() ? owen.stopPump() : owen.startPump();
+}
+
+void onEncoderClick(){
+    monitor.setFuelRateSetting(!monitor.fuelRateSetting());
+//    if(!monitor.fuelRateSetting())
+//        EEPROM.write(1, owen.fuelCorrection());
+}
+
+void onEncoderLongClick()
+{
+    if(monitor.fuelRateSetting())
+        owen.setFuelCorrection(0);
 }

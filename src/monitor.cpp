@@ -10,16 +10,12 @@ Monitor::Monitor(){
 void Monitor::start(){
     display.init();        // инициализация
     display.clear();       // очистка
-//    display.setScale(3);   // масштаб текста (1..4)
-//    display.home();        // курсор в 0,0
-//    display.print("Привет!");
     display.update();
     Serial.println(F("Monitor started"));
 }
 
 void Monitor::showOwenData(const Owen &owen){
     display.clear();
-    static double owenPumpL = 1.6;
 
 /*********************************OWEN TEMP****************************************/
     display.drawBitmap(80 - PIC_WIDTH - 2, 0, tempOwen_7x7, PIC_WIDTH, PIC_HEIGHT, BITMAP_NORMAL, BUF_ADD);
@@ -38,13 +34,13 @@ void Monitor::showOwenData(const Owen &owen){
     if(owen.ignition())
         display.drawBitmap( 105, 15, ignition_20x20, IND_WIDTH, IND_HEIGHT, BITMAP_NORMAL, BUF_ADD);
 /*********************************************************************************/
-/*********************************FIRE********************************************/
+/*********************************PUMP********************************************/
     display.roundRect(101, 38, 127, 63, OLED_STROKE);
-    if(1){
+    if(owen.pump()){
         display.drawBitmap( 105, 41, fire_20x20, IND_WIDTH, IND_HEIGHT, BITMAP_NORMAL, BUF_ADD);
     }
 /*********************************************************************************/
-/*********************************ACTIVITI****************************************/
+/*********************************ACTIVITY****************************************/
     if(owen.active()){
         display.drawBitmap( 0, 0, auto_19x8, 19, 8, BITMAP_NORMAL, BUF_ADD);
     }
@@ -56,10 +52,24 @@ void Monitor::showOwenData(const Owen &owen){
     display.print(String(map(owen.currentEngineSpeed(), 0, 254, 0, 100)) + "%");
 /*********************************************************************************/
 /*********************************FUEL RATE***************************************/
-    display.drawBitmap( 0, 16+ICO_HEIGHT, pump_24x24, ICO_WIDTH, ICO_HEIGHT, BITMAP_NORMAL, BUF_ADD);
-    display.setScale(2);
-    display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+8);
-    display.print(String((double)owen.currentFuelRate()) + "Lh");
+    static bool blink = true;
+    if(fuelRateSetting()) blink = !blink;
+    else                  blink = true;
+    if(blink)
+        display.drawBitmap( 0, 16+ICO_HEIGHT, pump_24x24, ICO_WIDTH, ICO_HEIGHT, BITMAP_NORMAL, BUF_ADD);
+
+    if(owen.fuelCorrection()){
+        display.setScale(2);
+        display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+8);
+        display.print(String(owen.currentFuelRate()) + "Lh");
+        display.setScale(1);
+        display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT-3);
+        display.print((owen.fuelCorrection()>0 ? "+" : "") + String(owen.fuelCorrection()));
+    }else{
+        display.setScale(2);
+        display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+4);
+        display.print(String(owen.currentFuelRate()) + "Lh");
+    }
 /*********************************************************************************/
 
     display.update();
@@ -79,5 +89,15 @@ void Monitor::showError(const String &str)
 //    display.setCursor(0, 10);
 //    display.print(str);
 
-//    display.display();
+    //    display.display();
+}
+
+bool Monitor::fuelRateSetting() const
+{
+    return m_fuelRateSetting;
+}
+
+void Monitor::setFuelRateSetting(bool newFuelRateSetting)
+{
+    m_fuelRateSetting = newFuelRateSetting;
 }

@@ -106,6 +106,8 @@ void Owen::startPump(){
     if(m_pump == false) {
         m_pump = true;
 //        digitalWrite(PUMP, LOW);
+        if(m_currentPWM == 0)
+            calcPumpPeriod(254);
         Serial.print(F("Pump started "));
 	}
 }
@@ -114,6 +116,8 @@ void Owen::stopPump(){
 	if(m_pump == true) {
         m_pump = false;
         digitalWrite(PUMP, LOW);
+        if(m_currentPWM == 0)
+            calcPumpPeriod(0);
         Serial.println(F("Pump stopped"));
 	}
 
@@ -201,6 +205,38 @@ void Owen::setPumpActuated(bool newPumpActuated)
     m_pumpActuated = newPumpActuated;
 }
 
+int Owen::fuelCorrection() const
+{
+    return m_fuelCorrection;
+}
+
+void Owen::addFuelCorrection(int newFuelCorrection)
+{
+    m_fuelCorrection += newFuelCorrection;
+    calcPumpPeriod(m_currentPWM);
+}
+
+void Owen::setFuelCorrection(int newFuelCorrection)
+{
+    m_fuelCorrection = newFuelCorrection;
+    calcPumpPeriod(m_currentPWM);
+}
+
+unsigned long Owen::calcPumpPeriod(int fanPWM)
+{
+    if(fanPWM > 0)
+        m_targetPumpPeriod = (1000/((PUMP_MAX_FLOW * map(fanPWM, 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION)) + -fuelCorrection();
+    else
+        m_targetPumpPeriod = 0;
+
+    if(m_targetPumpPeriod)
+        m_currentFuelRate = ((PUMP_SINGLE_ACTUATION*(1000.0/m_targetPumpPeriod))/1000.0)*60.0*60.0;
+    else
+        m_currentFuelRate = 0;
+
+    return m_targetPumpPeriod;
+}
+
 bool Owen::ignition() const{
     return m_ignition;
 }
@@ -229,21 +265,14 @@ void Owen::changeEngineSpeed()
 
         analogWrite(RPWM, m_currentPWM);
     }
-    if(m_currentPWM > 0)
-        m_targetPeriod = 1000/((PUMP_MAX_FLOW * map(currentEngineSpeed(), 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION);
-    else
-        m_targetPeriod = 0;
 
-    if(m_targetPeriod)
-        m_currentFuelRate = ((PUMP_SINGLE_ACTUATION*(1000.0/m_targetPeriod))/1000.0)*60.0*60.0;
-    else
-        m_currentFuelRate = 0;
+    calcPumpPeriod(m_currentPWM);
 }
 
 void Owen::pumpPulse(){
     static int counter = 0;
 
-    if(pump() && m_targetPeriod && counter <= m_targetPeriod){
+    if(pump() && m_targetPumpPeriod && counter <= m_targetPumpPeriod){
         if(counter < PUMP_ACTUATION_HALF_PERIOD){
             if(!pumpActuated()){
                 digitalWrite(PUMP, HIGH);

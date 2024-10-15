@@ -31,5 +31,7 @@ void onBtnPumpPlus();
 void onBtnPumpMinus();
 void onBtnIgnition();
 void onBtnPump();
+void onEncoderClick();
+void onEncoderLongClick();
 
 #endif // MAIN_H

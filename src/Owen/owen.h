@@ -73,6 +73,10 @@ public:
     bool pumpActuated() const;
     void setPumpActuated(bool newPumpActuated);
 
+    int fuelCorrection() const;
+    void addFuelCorrection(int newFuelCorrection);
+    void setFuelCorrection(int newFuelCorrection);
+
 private:
     bool m_active      = false;
     bool m_engine      = false;
@@ -88,8 +92,9 @@ private:
     int m_targetPWM  = 0; //целевая скорость
 
     double m_currentFuelRate = 0; //текущий расход
+    int m_fuelCorrection = 0; //коэффициент поправки расхода топлива
     unsigned long m_millis_pumpTimer = 0;
-    unsigned long m_targetPeriod = 0;
+    unsigned long m_targetPumpPeriod = 0;
 
 	double m_newTemp;
 	double m_currTemp;
@@ -108,6 +113,7 @@ private:
     int8_t  m_targetSpaceT;
 
 private:
+    unsigned long calcPumpPeriod(int fanPWM);
 };
 
 #endif // OWEN_H
