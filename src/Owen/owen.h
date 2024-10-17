@@ -102,7 +102,7 @@ private:
 
 private:
     const int m_pwmResolution = 255;
-    const int m_pwmStep       = 4;
+    const int m_pwmStep       = 1;
 
     //Temperature filtrate constant's
     const double m_k             =  0.8;

@@ -16,28 +16,57 @@ ProgramStop    programStop;
 #define DHTPIN 4
 DHT dht(DHTPIN, DHT22);
 
+#define DATA_FLAG 0xAA
+struct Settings{
+    int correction = 0; //Коррекция расхода топлива
+} deviceSettings;
+
+
+void loadSettings()
+{
+    if (EEPROM.read(0x0) == DATA_FLAG) {    // Проверяем наличие маркера
+        EEPROM.get(0x1, deviceSettings);    // Если маркер есть, загружаем настройки из EEPROM
+        owen.setFuelCorrection(deviceSettings.correction);
+    } else {
+        EEPROM.write(0x0, DATA_FLAG);       // Записываем маркер, указывающий наличие данных
+        EEPROM.put(0x1, deviceSettings);    // Сохраняем данные в EEPROM, начиная с адреса 0x1
+        Serial.println(F("Writing EEPROM set default correction"));
+    }
+}
+
+void saveSettings()
+{
+    bool needSave = false;
+    if(deviceSettings.correction != owen.fuelCorrection()){
+        deviceSettings.correction = owen.fuelCorrection();
+        needSave = true;
+    }
+
+    if(needSave){
+        EEPROM.write(0x0, DATA_FLAG);     // Записываем маркер, указывающий наличие данных
+        EEPROM.put(0x1, deviceSettings);  // Сохраняем данные в EEPROM, начиная с адреса 0x1
+
+        Serial.println(F("Writing EEPROM new correction"));
+    }
+}
+
 void setup() {
     Serial.begin(115200);
     eb.setEncReverse(1);
 
-    if(EEPROM.read(0) == 255){
-        EEPROM.write(0, targetT);
-        Serial.println(F("Writing EEPROM Target temp 20"));
-    }else{
-        targetT = EEPROM.read(0);
-    }
     owen.setTargetSpaceT(targetT);
+    loadSettings();
 
     dht.begin();
     checkSpaceTemperature();
 
     monitor.start();
-
     checkOwenTemperature();
-    setupTimerInterrupt();
 
-    Timer2.setPeriod(1000);
-    Timer2.enableISR(CHANNEL_A);
+    Timer1.setFrequency(1000);
+    Timer1.enableISR(CHANNEL_A);
+
+//    setupTimerInterrupt();
 }
 
 void loop() {
@@ -50,7 +79,7 @@ void loop() {
         case Buttons::btn_resetT:   onBtnResetT();    break;
     }
 
-    static unsigned long millis_d02;
+    static unsigned long millis_d02 = 0;
     static unsigned long d1 = 200;
     if((millis() > d1) && millis()-d1 > millis_d02){
         owen.readEngineTemp();
@@ -58,7 +87,7 @@ void loop() {
         millis_d02 = millis();
     }
 
-    static unsigned long millis_d2;
+    static unsigned long millis_d2 = 0;
     static unsigned long d2 = 2000;
     if((millis() > d2) && millis()-d2 > millis_d2){
         millis_d2 = millis();
@@ -66,39 +95,57 @@ void loop() {
     }
 }
 
-void setupTimerInterrupt(void){
-    cli();
-    {
-        TCCR1A  = 0;             // установить регистры в 0
-        TCCR1B  = 0;
+//void setupTimerInterrupt(void){
+//    cli();
+//    {
+//        TCCR1A  = 0;             // установить регистры в 0
+//        TCCR1B  = 0;
 
-        TIMSK1 |= (1 << OCIE1A); // включение прерываний по совпадению
-        TCCR1B |= (1 << WGM12 ); // включение в CTC режим
+//        TIMSK1 |= (1 << OCIE1A); // включение прерываний по совпадению
+//        TCCR1B |= (1 << WGM12 ); // включение в CTC режим
 
-        OCR1A   = 1562;          // установка регистра совпадения
-        TCCR1B |= (1 << CS10  ); // Установка битов CS10 на коэффициент деления 1024
-        TCCR1B |= (1 << CS12  ); // Установка битов CS12 на коэффициент деления 1024
-    }
-    sei();
-}
+//        OCR1A   = 1562;          // установка регистра совпадения
+//        TCCR1B |= (1 << CS10  ); // Установка битов CS10 на коэффициент деления 1024
+//        TCCR1B |= (1 << CS12  ); // Установка битов CS12 на коэффициент деления 1024
+//    }
+//    sei();
+//}
 
-ISR(TIMER1_COMPA_vect){
-    btns.keyBoardListener();
-    owen.changeEngineSpeed();
-    owen.checkIgnitionSafety();
-    owen.filtrateTemp();
-    programLaunch.update(owen);
-    programStop.update(owen);
-}
+//ISR(TIMER1_COMPA_vect){
+//    btns.keyBoardListener();
+//    owen.changeEngineSpeed();
+//    owen.checkIgnitionSafety();
+//    owen.filtrateTemp();
+//    programLaunch.update(owen);
+//    programStop.update(owen);
 
-ISR(TIMER2_A) {
+
+//    Serial.println(F("TIMER1_COMPA_vect"));
+//}
+
+ISR(TIMER1_A) {
     owen.pumpPulse();
 
     eb.tick();
-    if (eb.left())       onBtnMinus(eb.fast() ? 5 : 1);
-    else if (eb.right()) onBtnPlus(eb.fast() ? 5 : 1);
+    if (eb.left())       onBtnMinus(eb.fast());
+    else if (eb.right()) onBtnPlus(eb.fast());
     else if (eb.click()) onEncoderClick();
     else if (eb.hold())  onEncoderLongClick();
+
+    static unsigned i = 0;
+    if(i % 10 == 0)
+        owen.changeEngineSpeed();
+
+    if(i >= 99){
+        btns.keyBoardListener();
+        owen.checkIgnitionSafety();
+        owen.filtrateTemp();
+        programLaunch.update(owen);
+        programStop.update(owen);
+        i = 0;
+    }else{
+        i++;
+    }
 }
 
 void checkOwenTemperature(){
@@ -135,19 +182,19 @@ void onBtnPwr(){
     }
 }
 
-void onBtnPlus(int d){
+void onBtnPlus(bool fast){
     if(monitor.fuelRateSetting()){
-        owen.addFuelCorrection(d);
+        owen.addFuelCorrection(fast ? 5 : 1);
     }else{
-        owen.upEngineSpeed(d);
+        owen.upEngineSpeed(fast ? 20 : 3);
     }
 }
 
-void onBtnMinus(int d){
+void onBtnMinus(bool fast){
     if(monitor.fuelRateSetting()){
-        owen.addFuelCorrection(-d);
+        owen.addFuelCorrection(fast ? -5 : -1);
     }else{
-        owen.downEngineSpeed(d);
+        owen.downEngineSpeed(fast ? 10 : 3);
     }
 }
 
@@ -185,8 +232,8 @@ void onBtnPump(){
 
 void onEncoderClick(){
     monitor.setFuelRateSetting(!monitor.fuelRateSetting());
-//    if(!monitor.fuelRateSetting())
-//        EEPROM.write(1, owen.fuelCorrection());
+    if(!monitor.fuelRateSetting())
+        saveSettings();
 }
 
 void onEncoderLongClick()

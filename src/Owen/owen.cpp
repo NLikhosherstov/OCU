@@ -96,6 +96,8 @@ void Owen::setEngineSpeed(int pwm){
         m_targetPWM = pwm;
     }
 
+    Serial.println(m_targetPWM);
+
     m_engine = currentEngineSpeed();
 }
 
@@ -261,7 +263,10 @@ void Owen::changeEngineSpeed()
 
         analogWrite(RPWM, m_currentPWM);
     }else if(m_currentPWM > m_targetPWM){
-        m_currentPWM = m_targetPWM;
+        if( (m_currentPWM - m_pwmStep) > m_targetPWM )
+            m_currentPWM -= m_pwmStep;
+        else
+            m_currentPWM = m_targetPWM;
 
         analogWrite(RPWM, m_currentPWM);
     }

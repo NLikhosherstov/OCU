@@ -49,7 +49,7 @@ void Monitor::showOwenData(const Owen &owen){
     display.drawBitmap( 0, 12, fan_24x24, ICO_WIDTH, ICO_HEIGHT, BITMAP_NORMAL, BUF_ADD);
     display.setScale(2);
     display.setCursorXY(ICO_WIDTH+5, 16);
-    display.print(String(map(owen.currentEngineSpeed(), 0, 254, 0, 100)) + "%");
+    display.print(String(map(owen.targetPWM(), 0, 254, 0, 100)) + "%");
 /*********************************************************************************/
 /*********************************FUEL RATE***************************************/
     static bool blink = true;
