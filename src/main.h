@@ -2,9 +2,7 @@
 #define MAIN_H
 
 #include <Arduino.h>
-#include <EEPROM.h>
 #include <Adafruit_Sensor.h>
-#include <EncButton.h>
 
 #include "DHT.h"
 
@@ -12,21 +10,18 @@
 #include "buttons.h"
 #include "common.h"
 #include "Owen/owen.h"
-#include "Owen/programlaunch.h"
 #include "Owen/programlaunch2.h"
 #include "Owen/programstop.h"
 
-void loadSettings();
 void checkOwenTemperature(void);
 void checkSpaceTemperature(void);
 void setupTimerInterrupt(void);
 
 void onBtnPwr();
-void onBtnPlus(bool fast = false);
-void onBtnMinus(bool fast = false);
-void onBtnResetT();
-void onBtnLeft();
-void onBtnRight();
+void onEncoderPlus(bool fast = false);
+void onEncoderMinus(bool fast = false);
+void onBtnUp();
+void onBtnDown();
 void onBtnPumpPlus();
 void onBtnPumpMinus();
 void onBtnIgnition();

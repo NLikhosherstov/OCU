@@ -15,7 +15,7 @@
 #define MIN_START_PWM 153
 
 #define PUMP_SINGLE_ACTUATION 0.064  // ml per one phase 6.4ml/100
-#define PUMP_MAX_FLOW         0.62 // ml/sec (0.6216 ml/sec = 2.23 l/h)
+#define PUMP_MAX_FLOW         0.62  // ml/sec (0.6216 ml/sec = 2.23 l/h)
 #define PUMP_ACTUATION_PERIOD 75    // msec 36
 #define PUMP_ACTUATION_HALF_PERIOD PUMP_ACTUATION_PERIOD/2     // msec
 
@@ -27,9 +27,9 @@ public:
 	//ENGINE TEMPERATURE
 	void	filtrateTemp();
     void    resetTemp();
-    double	readEngineTemp();
-    double  currTempSpeed () const;
-    double  currTemp      () const;
+    float	readEngineTemp();
+    float   currTempSpeed () const;
+    float   currTemp      () const;
 
 	//ENGINE SPEED
     void tick();
@@ -38,7 +38,7 @@ public:
     void upEngineSpeed(const int &dif);
     void downEngineSpeed(const int &dif);
     void setEngineSpeed(int pwm);
-    int currentEngineSpeed() const;
+    unsigned char currentEngineSpeed() const;
 
     //Call always in interrupt handler
     void changeEngineSpeed();
@@ -60,15 +60,12 @@ public:
 
     void checkIgnitionSafety(); ////проверка времени включения свечи
 
-    int8_t targetSpaceT() const;
-    void setTargetSpaceT(const int8_t &targetSpaceT);
-
-    int16_t currentSpaceT() const;
-    void setCurrentSpaceT(const int16_t &currentSpaceT);
+    char currentSpaceT() const;
+    void setCurrentSpaceT(const char &currentSpaceT);
 
     int targetPWM() const;
 
-    double currentFuelRate() const;
+    float currentFuelRate() const;
 
     bool pumpActuated() const;
     void setPumpActuated(bool newPumpActuated);
@@ -88,29 +85,28 @@ private:
     int m_ignitionTimer   = 0;
     int m_ignitionMaxTick = 600;
 
-    int m_currentPWM = 0; //текущяя скорость
-    int m_targetPWM  = 0; //целевая скорость
+    unsigned char m_currentPWM = 0; //текущяя скорость
+    unsigned char m_targetPWM  = 0; //целевая скорость
 
-    double m_currentFuelRate = 0; //текущий расход
+    float m_currentFuelRate = 0; //текущий расход
     int m_fuelCorrection = 0; //коэффициент поправки расхода топлива
     unsigned long m_millis_pumpTimer = 0;
     unsigned long m_targetPumpPeriod = 0;
 
-	double m_newTemp;
-	double m_currTemp;
-    double m_currTempSpeed = 0;
+    float m_newTemp;
+    float m_currTemp;
+    float m_currTempSpeed = 0;
 
 private:
-    const int m_pwmResolution = 255;
-    const int m_pwmStep       = 1;
+    const unsigned char m_pwmResolution = 255;
+    const unsigned char m_pwmStep       = 1;
 
     //Temperature filtrate constant's
-    const double m_k             =  0.8;
-    const double m_dt            =  0.1; //sec
-    const double m_diffThreshold = 30.0; // deg
+    const float m_k             =  0.8;
+    const float m_dt            =  0.1; //sec
+    const float m_diffThreshold = 30.0; // deg
 
-    int16_t m_currentSpaceT;
-    int8_t  m_targetSpaceT;
+    char m_currentSpaceT = 0;
 
 private:
     unsigned long calcPumpPeriod(int fanPWM);

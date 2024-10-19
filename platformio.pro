@@ -42,20 +42,16 @@ SOURCES += src/main.cpp \
            src/monitor.cpp \
            src/buttons.cpp \
            src/Owen/owen.cpp \
-           src/Owen/programlaunch.cpp \
            src/Owen/programstop.cpp \
-           src/Owen/programlaunch2.cpp \
-           src/Owen/programthermostat.cpp
+           src/Owen/programlaunch2.cpp
 
 HEADERS += src/main.h \
            src/monitor.h \
            src/buttons.h \
            src/common.h \
            src/Owen/owen.h \
-           src/Owen/programlaunch.h \
            src/Owen/timer.h \
            src/Owen/programstop.h \
            src/Owen/programbase.h \
            src/Owen/programlaunch2.h \
-           src/Owen/programthermostat.h \
            src/resource.h

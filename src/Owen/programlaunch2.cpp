@@ -25,7 +25,7 @@ void ProgramLaunch2::update(Owen &owen){
 
 void ProgramLaunch2::standBy(Owen &owen){
     if(!m_blockPwmControl){
-        if(owen.currentSpaceT() >= (owen.targetSpaceT()+3)){
+        if(owen.currentSpaceT() >= 25){
             if(owen.currentEngineSpeed() == 255){
                 owen.setEngineSpeed(255/2);
                 m_blockPwmControl = true;
@@ -36,19 +36,19 @@ void ProgramLaunch2::standBy(Owen &owen){
 
 void ProgramLaunch2::startEngine(Owen &owen){
     owen.startEngine();
-    if (timeout() > (5 * 1000)) //ждем 5 сек на разгон двигателя
+    if (timeout() > (5000)) //ждем 5 сек на разгон двигателя
         set_state(Ignition);
 }
 
 void ProgramLaunch2::ignition(Owen &owen){
     owen.startIgnition();
-    if (timeout() > (7 * 1000)) //перед подачей топлива ждем около 7 сек
+    if (timeout() > (7000)) //перед подачей топлива ждем около 7 сек
         set_state(FuelSupply);  //для разогрева свечи
 }
 
 void ProgramLaunch2::fuelSupply(Owen &owen){
     owen.startPump();
-    if (timeout() > (30 * 1000)){ //ждем 30 сек на поджиг
+    if (timeout() > (30000)){ //ждем 30 сек на поджиг
         owen.stopIgnition();
         owen.setActive(true);
         owen.upEngineSpeed(28);

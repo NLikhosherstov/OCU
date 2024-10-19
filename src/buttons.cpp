@@ -11,10 +11,10 @@
 
 static int key_values[12] = {
                             758    //0  -POWER
-                            ,530   //1
+                            ,530   //1  -UP
                             ,355   //2  -IGNITION
                             ,167   //3  -PUMP
-                            ,17    //4  -RESET T
+                            ,17    //4  -DOWN
                             };
 
 volatile int value = -1;
@@ -23,9 +23,7 @@ volatile int m_currentButton = -1;
 volatile int oldKeyValue;
 volatile int innerKeyValue;
 
-Buttons::Buttons()
-{
-//	attachInterrupt(0, Buttons::keyBoardListener, FALLING);
+Buttons::Buttons(){
     pinMode(BTN_PIN, INPUT_PULLUP);
 }
 

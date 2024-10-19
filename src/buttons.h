@@ -11,10 +11,10 @@ public:
     enum Button : int8_t{
         btn_noBtn     = -1,
         btn_power     = 0,
-        btn_space     = 1,
+        btn_up     = 1,
         btn_ignition  = 2,
         btn_pump      = 3,
-        btn_resetT    = 4
+        btn_down      = 4
     };
 
 public:

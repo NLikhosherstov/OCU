@@ -17,21 +17,20 @@ Owen::Owen(){
     digitalWrite(IGNT, LOW);
 
     m_currentSpaceT = 0;
-    m_targetSpaceT = 0;
 
     m_currTemp = readEngineTemp();
 }
 
-double Owen::readEngineTemp(){
+float Owen::readEngineTemp(){
     m_newTemp = tSens.readCelsius();
     return m_newTemp;
 }
 
-double Owen::currTempSpeed() const{
+float Owen::currTempSpeed() const{
 	return m_currTempSpeed;
 }
 
-double Owen::currTemp() const{
+float Owen::currTemp() const{
     return m_currTemp;
 }
 
@@ -43,10 +42,10 @@ void Owen::filtrateTemp(){
 
 	if (utils::isNum(m_newTemp) == true)
 	{
-        double predictedTemp = m_currTemp + m_currTempSpeed * m_dt;
+        float predictedTemp = m_currTemp + m_currTempSpeed * m_dt;
         if (abs(m_newTemp - m_currTemp) < m_diffThreshold)
 		{
-			double currTemp = m_currTemp;
+            float currTemp = m_currTemp;
             m_currTemp      = (predictedTemp * m_k) + (m_newTemp * (1-m_k));
             m_currTempSpeed = (m_currTemp - currTemp) / m_dt;
 		}
@@ -173,19 +172,11 @@ void Owen::checkIgnitionSafety(){
     }
 }
 
-int8_t Owen::targetSpaceT() const{
-    return m_targetSpaceT;
-}
-
-void Owen::setTargetSpaceT(const int8_t &targetSpaceT){
-    m_targetSpaceT = targetSpaceT;
-}
-
-int16_t Owen::currentSpaceT() const{
+char Owen::currentSpaceT() const{
     return m_currentSpaceT;
 }
 
-void Owen::setCurrentSpaceT(const int16_t &currentSpaceT){
+void Owen::setCurrentSpaceT(const char &currentSpaceT){
     m_currentSpaceT = currentSpaceT;
 }
 
@@ -193,7 +184,7 @@ int Owen::targetPWM() const{
     return m_targetPWM;
 }
 
-double Owen::currentFuelRate() const{
+float Owen::currentFuelRate() const{
     return m_currentFuelRate;
 }
 
@@ -275,7 +266,7 @@ void Owen::changeEngineSpeed()
 }
 
 void Owen::pumpPulse(){
-    static int counter = 0;
+    static unsigned int counter = 0;
 
     if(pump() && m_targetPumpPeriod && counter <= m_targetPumpPeriod){
         if(counter < PUMP_ACTUATION_HALF_PERIOD){
@@ -299,6 +290,6 @@ void Owen::pumpPulse(){
     }
 }
 
-int Owen::currentEngineSpeed() const{
+unsigned char Owen::currentEngineSpeed() const{
 	return m_currentPWM;
 }
