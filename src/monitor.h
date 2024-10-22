@@ -24,8 +24,15 @@ public:
     void upItem();
     void downItem();
 
+    void increaseValue(Owen &owen, bool fast = false);
+    void decreaseValue(Owen &owen, bool fast = false);
+
+    bool settingsChanged() const;
+    void setSettingsChanged(bool newSettingsChanged);
+
 private:
     bool m_menuMode = false;
+    bool m_settingsChanged = false;
     char m_currentItem = 0;
     char m_itemsCount = 4;
 

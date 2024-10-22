@@ -39,6 +39,7 @@ public:
     void downEngineSpeed(const int &dif);
     void setEngineSpeed(int pwm);
     unsigned char currentEngineSpeed() const;
+    unsigned long calcPumpPeriod(int fanPWM = -1);
 
     //Call always in interrupt handler
     void changeEngineSpeed();
@@ -70,9 +71,8 @@ public:
     bool pumpActuated() const;
     void setPumpActuated(bool newPumpActuated);
 
-    int fuelCorrection() const;
-    void addFuelCorrection(int newFuelCorrection);
-    void setFuelCorrection(int newFuelCorrection);
+    unsigned char currentPWM() const;
+    void setCurrentPWM(unsigned char newCurrentPWM);
 
 private:
     bool m_active      = false;
@@ -89,7 +89,6 @@ private:
     unsigned char m_targetPWM  = 0; //целевая скорость
 
     float m_currentFuelRate = 0; //текущий расход
-    int m_fuelCorrection = 0; //коэффициент поправки расхода топлива
     unsigned long m_millis_pumpTimer = 0;
     unsigned long m_targetPumpPeriod = 0;
 
@@ -109,7 +108,6 @@ private:
     char m_currentSpaceT = 0;
 
 private:
-    unsigned long calcPumpPeriod(int fanPWM);
 };
 
 #endif // OWEN_H

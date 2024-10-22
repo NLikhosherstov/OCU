@@ -14,31 +14,68 @@ namespace utils
 		return (isnan(value) == false) && (isinf(value) == false);
 	}
 
-    #define DATA_FLAG 0xAA
-    struct Settings{
+
+
+//    Settings &Cfg().data{
+//        static Settings s_deviceSettings;
+//        return s_deviceSettings;
+//    }
+}
+
+namespace Config{
+    struct ConfigStruct{
         int     correction = 0;          //Общая коррекция расхода топлива
         double  owenMaxFlow = 1.75;      //Максимальный расход печки
         double  pumpMaxPerfomance = 6.4; //Призводительность насоса
         bool    embededPump = false;     //Встроенный насос
     };
-    static Settings deviceSettings;
 
-    inline void loadSettings(){
-        if (EEPROM.read(0x0) == DATA_FLAG) {    // Проверяем наличие маркера
-            EEPROM.get(0x1, deviceSettings);    // Если маркер есть, загружаем настройки из EEPROM
-        } else {
-            EEPROM.write(0x0, DATA_FLAG);       // Записываем маркер, указывающий наличие данных
-            EEPROM.put(0x1, deviceSettings);    // Сохраняем данные в EEPROM, начиная с адреса 0x1
-            Serial.println(F("Writing EEPROM set default settings"));
+    class Singleton
+    {
+      public:
+        static Singleton& inst()
+        {
+            static Singleton s;
+            return s;
         }
-    }
 
-    inline void saveSettings(){
-        EEPROM.write(0x0, DATA_FLAG);     // Записываем маркер, указывающий наличие данных
-        EEPROM.put(0x1, deviceSettings);  // Сохраняем данные в EEPROM, начиная с адреса 0x1
+        ConfigStruct data = ConfigStruct();
 
-        Serial.println(F("Writing EEPROM new settings"));
+      private:
+        Singleton() { }
+        ~Singleton() { }
+
+        Singleton(Singleton const&);
+        Singleton& operator= (Singleton const&);
+    };
+}
+
+#define DATA_FLAG 0xAC
+inline Config::Singleton& Cfg(){ return Config::Singleton::inst(); }
+inline void loadConfig(){
+    if (EEPROM.read(0x0) == DATA_FLAG) {    // Проверяем наличие маркера
+        EEPROM.get(0x1, Cfg().data);    // Если маркер есть, загружаем настройки из EEPROM
+        Serial.println(F("Load EEPROM settings"));
+        Serial.print(F("Correction:")); Serial.println(Cfg().data.correction);
+        Serial.print(F("OwenMaxFlow:")); Serial.println(Cfg().data.owenMaxFlow);
+        Serial.print(F("PumpMaxPerfomance:")); Serial.println(Cfg().data.pumpMaxPerfomance);
+        Serial.print(F("EmbededPump:")); Serial.println(Cfg().data.embededPump);
+    } else {
+        EEPROM.write(0x0, DATA_FLAG);       // Записываем маркер, указывающий наличие данных
+        EEPROM.put(0x1, Cfg().data);    // Сохраняем данные в EEPROM, начиная с адреса 0x1
+        Serial.println(F("Writing EEPROM set default settings"));
     }
+}
+
+inline void saveConfig(){
+    EEPROM.write(0x0, DATA_FLAG);     // Записываем маркер, указывающий наличие данных
+    EEPROM.put(0x1, Cfg().data);  // Сохраняем данные в EEPROM, начиная с адреса 0x1
+
+    Serial.println(F("Writing EEPROM new settings"));
+    Serial.print(F("Correction:")); Serial.println(Cfg().data.correction);
+    Serial.print(F("OwenMaxFlow:")); Serial.println(Cfg().data.owenMaxFlow);
+    Serial.print(F("PumpMaxPerfomance:")); Serial.println(Cfg().data.pumpMaxPerfomance);
+    Serial.print(F("EmbededPump:")); Serial.println(Cfg().data.embededPump);
 }
 
 #endif // COMMON_H

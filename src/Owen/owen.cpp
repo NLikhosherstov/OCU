@@ -198,27 +198,20 @@ void Owen::setPumpActuated(bool newPumpActuated)
     m_pumpActuated = newPumpActuated;
 }
 
-int Owen::fuelCorrection() const
-{
-    return m_fuelCorrection;
+unsigned char Owen::currentPWM() const{
+    return m_currentPWM;
 }
 
-void Owen::addFuelCorrection(int newFuelCorrection)
-{
-    m_fuelCorrection += newFuelCorrection;
-    calcPumpPeriod(m_currentPWM);
-}
-
-void Owen::setFuelCorrection(int newFuelCorrection)
-{
-    m_fuelCorrection = newFuelCorrection;
-    calcPumpPeriod(m_currentPWM);
+void Owen::setCurrentPWM(unsigned char newCurrentPWM){
+    m_currentPWM = newCurrentPWM;
 }
 
 unsigned long Owen::calcPumpPeriod(int fanPWM)
 {
     if(fanPWM > 0)
-        m_targetPumpPeriod = (1000/((PUMP_MAX_FLOW * map(fanPWM, 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION)) + -fuelCorrection();
+        m_targetPumpPeriod = (1000/((PUMP_MAX_FLOW * map(fanPWM, 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION)) + Cfg().data.correction;
+    else if(fanPWM == -1)
+        m_targetPumpPeriod = (1000/((PUMP_MAX_FLOW * map(m_currentPWM, 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION)) + Cfg().data.correction;
     else
         m_targetPumpPeriod = 0;
 

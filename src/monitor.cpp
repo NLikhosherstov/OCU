@@ -8,9 +8,11 @@ Monitor::Monitor(){
 }
 
 void Monitor::start(){
-    display.init();        // инициализация
-    display.clear();       // очистка
+    display.init();
+    display.clear();
+    display.textMode(BUF_ADD);
     display.update();
+
     Serial.println(F("Monitor started"));
 }
 
@@ -66,17 +68,13 @@ void Monitor::showOwenData(const Owen &owen)
     /*********************************FUEL RATE***************************************/
         display.drawBitmap( 0, 16+ICO_HEIGHT, pump_24x24, ICO_WIDTH, ICO_HEIGHT, BITMAP_NORMAL, BUF_ADD);
 
-        if(owen.fuelCorrection()){
-            display.setScale(2);
-            display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+8);
-            display.print(String(owen.currentFuelRate()) + "Lh");
+        display.setScale(2);
+        display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+6);
+        display.print(String(owen.currentFuelRate()) + "Lh");
+        if(Cfg().data.correction){
             display.setScale(1);
             display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT-3);
-            display.print((owen.fuelCorrection()>0 ? "+" : "") + String(owen.fuelCorrection()));
-        }else{
-            display.setScale(2);
-            display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+4);
-            display.print(String(owen.currentFuelRate()) + "Lh");
+            display.print((Cfg().data.correction>0 ? "+" : "") + String(Cfg().data.correction));
         }
     /*********************************************************************************/
 }
@@ -84,28 +82,86 @@ void Monitor::showOwenData(const Owen &owen)
 void Monitor::showMenuData(){
 //    Serial.println(F("Menu mode"));
     display.setScale(1);
-    static const char margin = 12;
+    static const char margin = 10;
     static const char spacing = 10;
 
     if(m_currentItem == 0) display.invertText(true);
     display.setCursorXY(0, margin);
-    display.print("Correction " + String(utils::deviceSettings.correction) + "");
+    display.print("Correct.  " + String(Cfg().data.correction));
     display.invertText(false);
 
     if(m_currentItem == 1) display.invertText(true);
     display.setCursorXY(0, margin+spacing);
-    display.print("Max flow  " + String(utils::deviceSettings.owenMaxFlow) + " lh");
+    display.print("Max flow  " + String(Cfg().data.owenMaxFlow) + " lh");
     display.invertText(false);
 
     if(m_currentItem == 2) display.invertText(true);
     display.setCursorXY(0, margin+spacing*2);
-    display.print("Pump perf  " + String(utils::deviceSettings.pumpMaxPerfomance) + " ml/100");
+    display.print("Pump perf " + String(Cfg().data.pumpMaxPerfomance) + " ml/100");
     display.invertText(false);
 
     if(m_currentItem == 3) display.invertText(true);
     display.setCursorXY(0, margin+spacing*3);
-    display.print("Emb.pump  " + String(utils::deviceSettings.embededPump) + "");
+    display.print("Emb.pump  " + String(Cfg().data.embededPump));
     display.invertText(false);
+}
+
+void Monitor::increaseValue(Owen &owen, bool fast){
+    switch (m_currentItem) {
+    case 0:
+        Cfg().data.correction += fast ? 5 : 1;
+        if(owen.currentPWM() == 0 && owen.pump()) owen.calcPumpPeriod(255);
+        else                                      owen.calcPumpPeriod();
+        setSettingsChanged(true);
+        break;
+    case 1:
+        Cfg().data.owenMaxFlow += fast ? 0.1 : 0.05;
+        setSettingsChanged(true);
+        break;
+    case 2:
+        Cfg().data.pumpMaxPerfomance += fast ? 0.5 : 0.1;
+        setSettingsChanged(true);
+        break;
+    case 3:
+        Cfg().data.embededPump = !Cfg().data.embededPump;
+        setSettingsChanged(true);
+        break;
+    default:
+        break;
+    }
+}
+
+void Monitor::decreaseValue(Owen &owen, bool fast){
+    switch (m_currentItem) {
+    case 0:
+        Cfg().data.correction -= fast ? 5 : 1;
+        if(owen.currentPWM() == 0 && owen.pump()) owen.calcPumpPeriod(255);
+        else                                      owen.calcPumpPeriod();
+        setSettingsChanged(true);
+        break;
+    case 1:
+        Cfg().data.owenMaxFlow = max(0, Cfg().data.owenMaxFlow - (fast ? 0.1 : 0.05));
+        setSettingsChanged(true);
+        break;
+    case 2:
+        Cfg().data.pumpMaxPerfomance = max(0, Cfg().data.pumpMaxPerfomance - (fast ? 0.5 : 0.1));
+        setSettingsChanged(true);
+        break;
+    case 3:
+        Cfg().data.embededPump = !Cfg().data.embededPump;
+        setSettingsChanged(true);
+        break;
+    default:
+        break;
+    }
+}
+
+bool Monitor::settingsChanged() const{
+    return m_settingsChanged;
+}
+
+void Monitor::setSettingsChanged(bool newSettingsChanged){
+    m_settingsChanged = newSettingsChanged;
 }
 
 void Monitor::showError(const String &/*str*/){

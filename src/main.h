@@ -24,8 +24,8 @@ void onBtnUp();
 void onBtnDown();
 void onBtnPumpPlus();
 void onBtnPumpMinus();
-void onBtnIgnition();
-void onBtnPump();
+void onBtnRight();
+void onBtnLeft();
 void onEncoderClick();
 void onEncoderLongClick();
 
