@@ -19,6 +19,8 @@ private:
 
 private:
     bool m_blockPwmControl = false;
+    bool m_fullPower = false;
+    bool m_stopped = false;
 };
 
 #endif // PROGRAMLAUNCH2_H

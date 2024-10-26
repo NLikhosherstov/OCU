@@ -12,10 +12,6 @@
 #define RPWM PIN3   //engine control pin
 #define LPWM PIN6   //engine control pin
 
-#define MIN_START_PWM 153
-
-#define PUMP_SINGLE_ACTUATION 0.064  // ml per one phase 6.4ml/100
-#define PUMP_MAX_FLOW         0.62  // ml/sec (0.6216 ml/sec = 2.23 l/h)
 #define PUMP_ACTUATION_PERIOD 75    // msec 36
 #define PUMP_ACTUATION_HALF_PERIOD PUMP_ACTUATION_PERIOD/2     // msec
 
@@ -31,8 +27,7 @@ public:
     float   currTempSpeed () const;
     float   currTemp      () const;
 
-	//ENGINE SPEED
-    void tick();
+    //ENGINE SPEED
 	void startEngine();
 	void stopEngine();
     void upEngineSpeed(const int &dif);
@@ -56,13 +51,10 @@ public:
 	void stopIgnition();
 
 	//ENGINE STATUS
-	bool active() const;
-    void setActive(bool active);
+    bool automatic() const;
+    void setAutomatic(bool newAutomatic);
 
     void checkIgnitionSafety(); ////проверка времени включения свечи
-
-    char currentSpaceT() const;
-    void setCurrentSpaceT(const char &currentSpaceT);
 
     int targetPWM() const;
 
@@ -74,8 +66,10 @@ public:
     unsigned char currentPWM() const;
     void setCurrentPWM(unsigned char newCurrentPWM);
 
+    short targetPumpPeriod() const;
+
 private:
-    bool m_active      = false;
+    bool m_avtomatic      = false;
     bool m_engine      = false;
     bool m_pump        = false;
     bool m_ignition    = false;
@@ -90,7 +84,7 @@ private:
 
     float m_currentFuelRate = 0; //текущий расход
     unsigned long m_millis_pumpTimer = 0;
-    unsigned long m_targetPumpPeriod = 0;
+    short m_targetPumpPeriod = 0;
 
     float m_newTemp;
     float m_currTemp;
@@ -104,8 +98,6 @@ private:
     const float m_k             =  0.8;
     const float m_dt            =  0.1; //sec
     const float m_diffThreshold = 30.0; // deg
-
-    char m_currentSpaceT = 0;
 
 private:
 };

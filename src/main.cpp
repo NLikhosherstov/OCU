@@ -39,7 +39,7 @@ void loop() {
         case Buttons::btn_power:    onBtnPwr();       break;
         case Buttons::btn_up:       onBtnUp();        break;
         case Buttons::btn_pump:     onBtnLeft();      break;
-        case Buttons::btn_ignition: onBtnRight();  break;
+        case Buttons::btn_ignition: onBtnRight();     break;
         case Buttons::btn_down:     onBtnDown();      break;
     }
 
@@ -55,7 +55,8 @@ void loop() {
     static unsigned long d2 = 2000;
     if((millis() > d2) && millis()-d2 > millis_d2){
         millis_d2 = millis();
-        checkSpaceTemperature();
+        if(!monitor.menuMode())
+            checkSpaceTemperature();
     }
 }
 
@@ -87,40 +88,34 @@ ISR(TIMER1_A) {
 void checkOwenTemperature(){
     double value = owen.readEngineTemp();
     if(utils::isNum(value) == false){
-        String str = "Owen t sensor: " + String(value);
-        monitor.showError(str);
-        Serial.println(str);
-
         delay(300);
         value = 0;
     }
-    Serial.print(F("Owen temperature: "));
-    Serial.println(value);
 }
 
 void checkSpaceTemperature(){
     float t = dht.readTemperature();
-    owen.setCurrentSpaceT((char)t);
+    spaceT() = (char)t;
 }
 
 void onBtnUp(){
-    Serial.println(F("UP_BTN"));
-    if(monitor.menuMode())
+    if(monitor.menuMode()){
         monitor.upItem();
+    }else{
+
+    }
 }
 
 void onBtnDown(){
-    Serial.println(F("DOWN_BTN"));
     owen.resetTemp();
     if(monitor.menuMode())
         monitor.downItem();
 }
 
 void onBtnPwr(){
-    Serial.println(F("PWR_BTN"));
     if(monitor.menuMode()){
     }else{
-        if (owen.active() == false && programLaunch.state() == ProgramBase::StandBy){
+        if (owen.automatic() == false && programLaunch.state() == ProgramBase::StandBy){
             programStop.stop();
             programLaunch.execute();
         }else{
@@ -131,41 +126,47 @@ void onBtnPwr(){
 }
 
 void onEncoderPlus(bool fast){
-    Serial.println(F("PLUS_ENC"));
     if(monitor.menuMode()){
         monitor.increaseValue(owen, fast);
     }else{
-        owen.upEngineSpeed(fast ? 20 : 3);
+        programLaunch.stop();
+        programStop.stop();
+        owen.setAutomatic(false);
+        owen.upEngineSpeed(fast ? 20 : 1);
     }
 }
 
 void onEncoderMinus(bool fast){
-    Serial.println(F("MINUS_ENC"));
     if(monitor.menuMode()){
         monitor.decreaseValue(owen, fast);
     }else{
-        owen.downEngineSpeed(fast ? 10 : 3);
+        programLaunch.stop();
+        programStop.stop();
+        owen.setAutomatic(false);
+        owen.downEngineSpeed(fast ? 20 : 1);
     }
 }
 
 void onBtnRight(){
     if(monitor.menuMode()){
-        monitor.increaseValue(owen, false);
+        monitor.setMenuMode(false);
+        monitor.setSettingsChanged(false);
     }else{
         programLaunch.stop();
         programStop.stop();
-        Serial.println(F("IGNT_BTN"));
+        owen.setAutomatic(false);
         owen.ignition() ? owen.stopIgnition() : owen.startIgnition();
     }
 }
 
 void onBtnLeft(){
     if(monitor.menuMode()){
-        monitor.decreaseValue(owen, false);
+        monitor.setMenuMode(false);
+        monitor.setSettingsChanged(false);
     }else{
         programLaunch.stop();
         programStop.stop();
-        Serial.println(F("PUMP_BTN"));
+        owen.setAutomatic(false);
         owen.pump() ? owen.stopPump() : owen.startPump();
     }
 }

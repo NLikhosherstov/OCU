@@ -29,12 +29,16 @@ void ProgramStop::handle_Cooling(Owen &owen){
     owen.stopIgnition();
 
     if (timeout() < (3 * 1000)){ //через 3 секунды можно регулировать вручную
-        owen.setEngineSpeed(255);//макс скорость двигателя
+        owen.setEngineSpeed(Cfg().speed4);//макс скорость двигателя
     }
 
-    if(owen.currTemp() < 40.0){
+    if(int(owen.currTemp()) == 0 && timeout() > (60 * 1000)){
         owen.stopEngine();
-        owen.setActive(false);
+        owen.setAutomatic(false);
+        set_state(StandBy);
+    }else if(owen.currTemp() < 40.0){
+        owen.stopEngine();
+        owen.setAutomatic(false);
         set_state(StandBy);
     }
 }

@@ -34,7 +34,7 @@ private:
     bool m_menuMode = false;
     bool m_settingsChanged = false;
     char m_currentItem = 0;
-    char m_itemsCount = 4;
+    char m_itemsCount = 12;
 
 private:
     void showOwenData(const Owen &owen);

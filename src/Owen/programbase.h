@@ -28,7 +28,6 @@ public:
     void        updateTimer() { return m_timer.update();  }
     void        resetTimer()  { return m_timer.reset();   }
 
-protected:
     void set_state(State state){
         m_timer.reset();
         m_state = state;

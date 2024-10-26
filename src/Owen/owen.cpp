@@ -16,8 +16,6 @@ Owen::Owen(){
     pinMode(IGNT, OUTPUT);
     digitalWrite(IGNT, LOW);
 
-    m_currentSpaceT = 0;
-
     m_currTemp = readEngineTemp();
 }
 
@@ -64,52 +62,80 @@ void Owen::resetTemp(){
 }
 
 void Owen::startEngine(){
-    m_targetPWM = 150;
+    setEngineSpeed(Cfg().speed1);
 }
 
 void Owen::stopEngine(){
-    m_targetPWM = 0;
+    setEngineSpeed(0);
 }
 
 void Owen::upEngineSpeed(const int &dif){
-    if(currentEngineSpeed() == 0 && dif < MIN_START_PWM){ //двигатель нормально стартует только с MIN_START_PWM
-        setEngineSpeed(m_targetPWM + MIN_START_PWM);
+    if(Cfg().embededPump){
+        if(currentEngineSpeed() == 0 && dif < MIN_START_PWM){ //двигатель нормально стартует только с MIN_START_PWM
+            setEngineSpeed(m_targetPWM + MIN_START_PWM);
+        }else{
+            setEngineSpeed(m_targetPWM + dif);
+        }
     }else{
-        setEngineSpeed(m_targetPWM + dif);
+        if(m_targetPWM < Cfg().speed1)
+            setEngineSpeed(Cfg().speed1);
+        else if(m_targetPWM < Cfg().speed2)
+            setEngineSpeed(Cfg().speed2);
+        else if(m_targetPWM < Cfg().speed3)
+            setEngineSpeed(Cfg().speed3);
+        else if(m_targetPWM < Cfg().speed4)
+            setEngineSpeed(Cfg().speed4);
     }
 }
 
 void Owen::downEngineSpeed(const int &dif){
-    setEngineSpeed(m_targetPWM - dif);
+    if(Cfg().embededPump){
+        setEngineSpeed(m_targetPWM - dif);
+    }else{
+        if(m_targetPWM >= Cfg().speed4)
+            setEngineSpeed(Cfg().speed3);
+        else if(m_targetPWM >= Cfg().speed3)
+            setEngineSpeed(Cfg().speed2);
+        else if(m_targetPWM >= Cfg().speed2)
+            setEngineSpeed(Cfg().speed1);
+        else if(m_targetPWM >= Cfg().speed1){
+            if(pump() && (currTemp() < 60)){
+                stopPump();
+                setEngineSpeed(0);
+            }else if(!pump()){
+                setEngineSpeed(0);
+            }else{
+                return;
+            }
+        }
+    }
 }
 
 void Owen::setEngineSpeed(int pwm){
-    if(pwm == m_targetPWM)
-        return;
-
-    if(pwm <= 0){
-        m_targetPWM = 0;
-    }else if(pwm >= m_pwmResolution){
-        m_targetPWM = m_pwmResolution-1;
-    }else{
-        m_targetPWM = pwm;
+    if(pwm != m_targetPWM){
+        if(pwm <= 0){
+            m_targetPWM = 0;
+        }else if(pwm >= m_pwmResolution){
+            m_targetPWM = m_pwmResolution-1;
+        }else{
+            m_targetPWM = pwm;
+        }
     }
 
-    Serial.println(m_targetPWM);
-
     m_engine = currentEngineSpeed();
+    calcPumpPeriod(m_targetPWM);
 }
 
-//static unsigned long timerMS = 0;
-
 void Owen::startPump(){
-//    timerMS = millis();
     if(m_pump == false) {
         m_pump = true;
-//        digitalWrite(PUMP, LOW);
-        if(m_currentPWM == 0)
-            calcPumpPeriod(254);
-        Serial.print(F("Pump started "));
+        if(Cfg().embededPump){
+            digitalWrite(PUMP, HIGH);
+        }else{
+            if(m_currentPWM == 0)
+                calcPumpPeriod(Cfg().speed4);
+        }
+        Serial.println(F("Pump started "));
 	}
 }
 
@@ -120,18 +146,7 @@ void Owen::stopPump(){
         if(m_currentPWM == 0)
             calcPumpPeriod(0);
         Serial.println(F("Pump stopped"));
-	}
-
-//    int sec = (millis() - timerMS)/1000;
-//    Serial.print(F("Pump worked: "));
-//    Serial.print(sec);
-//    Serial.println(F("sec"));
-
-//    Serial.print(F("Result:"));
-//    Serial.print((100.0/double(sec))*3.6);
-//    Serial.println(F("LH"));
-
-//    timerMS = 0;
+    }
 }
 
 void Owen::startIgnition(){
@@ -150,16 +165,12 @@ void Owen::stopIgnition(){
 	}
 }
 
-bool Owen::active() const{
-	return m_active;
+bool Owen::automatic() const{
+    return m_avtomatic;
 }
 
-void Owen::setActive(bool active){
-    m_active = active;
-    if(m_active)
-        Serial.println(F("Owen active"));
-    else
-        Serial.println(F("Owen inactive"));
+void Owen::setAutomatic(bool newAutomatic){
+    m_avtomatic = newAutomatic;
 }
 
 void Owen::checkIgnitionSafety(){
@@ -172,14 +183,6 @@ void Owen::checkIgnitionSafety(){
     }
 }
 
-char Owen::currentSpaceT() const{
-    return m_currentSpaceT;
-}
-
-void Owen::setCurrentSpaceT(const char &currentSpaceT){
-    m_currentSpaceT = currentSpaceT;
-}
-
 int Owen::targetPWM() const{
     return m_targetPWM;
 }
@@ -188,13 +191,11 @@ float Owen::currentFuelRate() const{
     return m_currentFuelRate;
 }
 
-bool Owen::pumpActuated() const
-{
+bool Owen::pumpActuated() const{
     return m_pumpActuated;
 }
 
-void Owen::setPumpActuated(bool newPumpActuated)
-{
+void Owen::setPumpActuated(bool newPumpActuated){
     m_pumpActuated = newPumpActuated;
 }
 
@@ -206,19 +207,38 @@ void Owen::setCurrentPWM(unsigned char newCurrentPWM){
     m_currentPWM = newCurrentPWM;
 }
 
+short Owen::targetPumpPeriod() const{
+    return m_targetPumpPeriod;
+}
+
 unsigned long Owen::calcPumpPeriod(int fanPWM)
 {
-    if(fanPWM > 0)
-        m_targetPumpPeriod = (1000/((PUMP_MAX_FLOW * map(fanPWM, 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION)) + Cfg().data.correction;
-    else if(fanPWM == -1)
-        m_targetPumpPeriod = (1000/((PUMP_MAX_FLOW * map(m_currentPWM, 0, 254, 0, 100)/100)/PUMP_SINGLE_ACTUATION)) + Cfg().data.correction;
-    else
-        m_targetPumpPeriod = 0;
+    if(Cfg().embededPump){
+        if(fanPWM > 0)
+            m_targetPumpPeriod = (1000/((Cfg().owenMaxFlow * map(fanPWM, 0, 254, 0, 100)/100)/Cfg().pumpPerfomance)) + Cfg().correction;
+        else if(fanPWM == -1)
+            m_targetPumpPeriod = (1000/((Cfg().owenMaxFlow * map(m_currentPWM, 0, 254, 0, 100)/100)/Cfg().pumpPerfomance)) + Cfg().correction;
+        else
+            m_targetPumpPeriod = 0;
+    }else{
+        int pwm = m_targetPWM;
+        if(fanPWM > 0) pwm = fanPWM;
+        if(pwm < Cfg().speed1)
+            m_targetPumpPeriod = 0;
+        else if(pwm < Cfg().speed2)
+            m_targetPumpPeriod = Cfg().consumption1;
+        else if(pwm < Cfg().speed3)
+            m_targetPumpPeriod = Cfg().consumption2;
+        else if(pwm < Cfg().speed4)
+            m_targetPumpPeriod = Cfg().consumption3;
+        else if(pwm >= Cfg().speed4)
+            m_targetPumpPeriod = Cfg().consumption4;
 
-    if(m_targetPumpPeriod)
-        m_currentFuelRate = ((PUMP_SINGLE_ACTUATION*(1000.0/m_targetPumpPeriod))/1000.0)*60.0*60.0;
-    else
-        m_currentFuelRate = 0;
+        if(m_targetPumpPeriod > 0)
+            m_targetPumpPeriod = max(0, m_targetPumpPeriod - Cfg().correction);
+    }
+
+    m_currentFuelRate = utils::fuelRate(Cfg().pumpPerfomance, m_targetPumpPeriod);
 
     return m_targetPumpPeriod;
 }
@@ -254,12 +274,11 @@ void Owen::changeEngineSpeed()
 
         analogWrite(RPWM, m_currentPWM);
     }
-
-    calcPumpPeriod(m_currentPWM);
 }
 
 void Owen::pumpPulse(){
     static unsigned int counter = 0;
+    if(Cfg().embededPump) return;
 
     if(pump() && m_targetPumpPeriod && counter <= m_targetPumpPeriod){
         if(counter < PUMP_ACTUATION_HALF_PERIOD){
