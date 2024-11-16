@@ -9,7 +9,7 @@
 //--------------
 //     | 4 |
 
-static int key_values[12] = {
+static int key_values[5] = {
                             758    //0  -POWER
                             ,530   //1  -UP
                             ,355   //2  -IGNITION
@@ -30,6 +30,9 @@ Buttons::Buttons(){
 void Buttons::keyBoardListener(void){
     int raw = analogRead(BTN_PIN);
     int actualKeyValue = get_key(raw);
+//    if(raw < 1020){
+//        Serial.print(actualKeyValue); Serial.print(" "); Serial.println(raw);
+//    }
 
     if (innerKeyValue != actualKeyValue) {  // Пришло значение отличное от предыдущего
         innerKeyValue = actualKeyValue;     // Запоминаем новое значение
@@ -49,8 +52,8 @@ Buttons::Button Buttons::button(){
 }
 
 int Buttons::get_key(int value){
-    int error = 10;
-    for (int i(11); i >= 0; --i) {
+    int error = 70;
+    for (int i(4); i >= 0; --i) {
       // Если значение в заданном диапазоне values[i]+/-error - считаем, что кнопка определена
       if ( (value <= (key_values[i] + error)) && (value >= (key_values[i] - error)))
           return i;

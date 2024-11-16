@@ -28,7 +28,12 @@ void ProgramLaunch2::update(Owen &owen){
 void ProgramLaunch2::standBy(Owen &owen){
     if(owen.automatic() && !m_stopped){
         if(!m_fullPower){
-            if(timeout() > ((uint64_t)90 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
+            if(owen.currTemp() == 0){
+                if(timeout() > ((uint64_t)90 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
+                    owen.setEngineSpeed(Cfg().speed4);
+                    m_fullPower = true;
+                }
+            }else if(owen.currTemp() >= 50){
                 owen.setEngineSpeed(Cfg().speed4);
                 m_fullPower = true;
             }
@@ -78,4 +83,8 @@ void ProgramLaunch2::warmingUp(Owen &owen){
         owen.calcPumpPeriod(Cfg().speed1); //топлива не доливаем
         set_state(StandBy);
     }
+}
+
+bool ProgramLaunch2::isStopped() const{
+    return m_stopped;
 }

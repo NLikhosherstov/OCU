@@ -115,12 +115,25 @@ void onBtnDown(){
 void onBtnPwr(){
     if(monitor.menuMode()){
     }else{
-        if (owen.automatic() == false && programLaunch.state() == ProgramBase::StandBy){
-            programStop.stop();
-            programLaunch.execute();
+        if(int(owen.currTemp()) >= 40){
+            if(programStop.state() == ProgramBase::Cooling){
+                programStop.stop();
+                programLaunch.execute();
+            }else if(programLaunch.isStopped()){
+                programStop.stop();
+                programLaunch.execute();
+            }else{
+                programLaunch.stop();
+                programStop.execute();
+            }
         }else{
-            programLaunch.stop();
-            programStop.execute();
+            if(programLaunch.isStopped()){
+                programStop.stop();
+                programLaunch.execute();
+            }else{
+                programLaunch.stop();
+                programStop.execute();
+            }
         }
     }
 }
@@ -182,5 +195,7 @@ void onEncoderClick(){
 void onEncoderLongClick(){
     if(monitor.menuMode()){
 //        owen.setFuelCorrection(0);
+    }else{
+
     }
 }

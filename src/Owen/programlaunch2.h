@@ -10,6 +10,8 @@ public:
     void stop   ();
     void update (Owen & owen);
 
+    bool isStopped() const;
+
 private:
     void standBy(Owen & owen);
     void startEngine(Owen & owen);
@@ -20,7 +22,7 @@ private:
 private:
     bool m_blockPwmControl = false;
     bool m_fullPower = false;
-    bool m_stopped = false;
+    bool m_stopped = true;
 };
 
 #endif // PROGRAMLAUNCH2_H
