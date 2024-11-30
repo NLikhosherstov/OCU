@@ -211,8 +211,14 @@ short Owen::targetPumpPeriod() const{
     return m_targetPumpPeriod;
 }
 
-unsigned long Owen::calcPumpPeriod(int fanPWM)
-{
+void Owen::setTargetPumpPeriod(short newTargetPumpPeriod, bool corr){
+    m_targetPumpPeriod = newTargetPumpPeriod;
+    if(m_targetPumpPeriod > 0)
+        m_targetPumpPeriod = max(0, newTargetPumpPeriod - (corr ? Cfg().correction : 0));
+    m_currentFuelRate = utils::fuelRate(Cfg().pumpPerfomance, m_targetPumpPeriod);
+}
+
+unsigned long Owen::calcPumpPeriod(int fanPWM){
     if(Cfg().embededPump){
         if(fanPWM > 0)
             m_targetPumpPeriod = (1000/((Cfg().owenMaxFlow * map(fanPWM, 0, 254, 0, 100)/100)/Cfg().pumpPerfomance)) + Cfg().correction;

@@ -29,18 +29,20 @@ void ProgramLaunch2::standBy(Owen &owen){
     if(owen.automatic() && !m_stopped){
         if(!m_fullPower){
             if(owen.currTemp() == 0){
-                if(timeout() > ((uint64_t)90 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
+                if(timeout() > ((uint64_t)120 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
                     owen.setEngineSpeed(Cfg().speed4);
                     m_fullPower = true;
                 }
-            }else if(owen.currTemp() >= 50){
+            }else if(owen.currTemp() >= 45){
                 owen.setEngineSpeed(Cfg().speed4);
                 m_fullPower = true;
+            }else if(timeout() > ((uint64_t)90 * (uint64_t)1000)){
+                owen.calcPumpPeriod(Cfg().speed3);
             }
         }
 
         if(m_fullPower){
-            if(spaceT() >= 23){
+            if(spaceT() >= 25){
                 if(owen.currentEngineSpeed() == Cfg().speed4){
                     owen.setEngineSpeed(Cfg().speed2);
                 }

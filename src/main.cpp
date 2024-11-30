@@ -102,14 +102,35 @@ void onBtnUp(){
     if(monitor.menuMode()){
         monitor.upItem();
     }else{
-
+        if(owen.pump() && !Cfg().embededPump){
+            short period = owen.targetPumpPeriod() + Cfg().correction;
+            if(period == Cfg().consumption1){
+                owen.setTargetPumpPeriod(Cfg().consumption2);
+            }else if(period == Cfg().consumption2){
+                owen.setTargetPumpPeriod(Cfg().consumption3);
+            }else if(period == Cfg().consumption3){
+                owen.setTargetPumpPeriod(Cfg().consumption4);
+            }
+        }
     }
 }
 
 void onBtnDown(){
     owen.resetTemp();
-    if(monitor.menuMode())
+    if(monitor.menuMode()){
         monitor.downItem();
+    }else{
+        if(owen.pump() && !Cfg().embededPump){
+            short period = owen.targetPumpPeriod() + Cfg().correction;
+            if(period == Cfg().consumption4){
+                owen.setTargetPumpPeriod(Cfg().consumption3);
+            }else if(period == Cfg().consumption3){
+                owen.setTargetPumpPeriod(Cfg().consumption2);
+            }else if(period == Cfg().consumption2){
+                owen.setTargetPumpPeriod(Cfg().consumption1);
+            }
+        }
+    }
 }
 
 void onBtnPwr(){

@@ -67,6 +67,7 @@ public:
     void setCurrentPWM(unsigned char newCurrentPWM);
 
     short targetPumpPeriod() const;
+    void setTargetPumpPeriod(short newTargetPumpPeriod, bool corr = true);
 
 private:
     bool m_avtomatic      = false;

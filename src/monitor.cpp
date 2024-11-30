@@ -92,8 +92,26 @@ void Monitor::showOwenData(const Owen &owen)
         }
         display.setScale(2);
         display.setCursorXY(ICO_WIDTH+5, 16+ICO_HEIGHT+4);
-        if(owen.pump()) display.print(String(owen.currentFuelRate()) + "Lh");
-        else            display.print("-.--Lh");
+        if(owen.pump()){
+            display.print(String(owen.currentFuelRate()) + "Lh");
+            short period = owen.targetPumpPeriod() + Cfg().correction;
+            margin = ICO_WIDTH+5;
+            short spacing = 3;
+
+            if(period <= Cfg().consumption1)
+                display.rect(margin, 61, margin+rectWidth, 64);
+            margin = margin + rectWidth + spacing;
+            if(period <= Cfg().consumption2)
+                display.rect(margin, 61, margin+rectWidth, 64);
+            margin = margin + rectWidth + spacing;
+            if(period <= Cfg().consumption3)
+                display.rect(margin, 61, margin+rectWidth, 64);
+            margin = margin + rectWidth + spacing;
+            if(period <= Cfg().consumption4)
+                display.rect(margin, 61, margin+rectWidth, 64);
+        }else{
+            display.print("-.--Lh");
+        }
     /*********************************************************************************/
 }
 
