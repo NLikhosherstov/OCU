@@ -9,6 +9,7 @@ Monitor monitor;
 Buttons btns;
 
 EncButton eb(10, 11, 12);
+static bool kbdConfigMode = false;
 
 Owen           owen;
 ProgramLaunch2 programLaunch;
@@ -19,9 +20,12 @@ DHT dht(DHTPIN, DHT22);
 
 void setup() {
     Serial.begin(115200);
-    eb.setEncReverse(1);
 
     loadConfig();
+
+    btns.updateBtnData();
+
+    eb.setEncReverse(1);
 
     dht.begin();
     checkSpaceTemperature();
@@ -34,13 +38,15 @@ void setup() {
 }
 
 void loop() {
-    switch(btns.button()){
-        case Buttons::btn_noBtn:                      break;
-        case Buttons::btn_power:    onBtnPwr();       break;
-        case Buttons::btn_up:       onBtnUp();        break;
-        case Buttons::btn_pump:     onBtnLeft();      break;
-        case Buttons::btn_ignition: onBtnRight();     break;
-        case Buttons::btn_down:     onBtnDown();      break;
+    if(!kbdConfigMode){
+        switch(btns.button()){
+            case Buttons::btn_noBtn:                      break;
+            case Buttons::btn_power:    onBtnPwr();       break;
+            case Buttons::btn_up:       onBtnUp();        break;
+            case Buttons::btn_pump:     onBtnLeft();      break;
+            case Buttons::btn_ignition: onBtnRight();     break;
+            case Buttons::btn_down:     onBtnDown();      break;
+        }
     }
 
     static unsigned long millis_d02 = 0;
@@ -57,6 +63,12 @@ void loop() {
         millis_d2 = millis();
         if(!monitor.menuMode())
             checkSpaceTemperature();
+    }
+
+    if(!monitor.btnConfigMode() && kbdConfigMode){
+        kbdConfigMode = false;
+        btns.setBtnConfigMode(false);
+        saveConfig();
     }
 }
 
@@ -99,7 +111,10 @@ void checkSpaceTemperature(){
 }
 
 void onBtnUp(){
-    if(monitor.menuMode()){
+    if(monitor.constTempMode()){
+        Cfg().constTemp += 1;
+        monitor.restartTempCounter();
+    }else if(monitor.menuMode()){
         monitor.upItem();
     }else{
         if(owen.pump() && !Cfg().embededPump){
@@ -111,13 +126,19 @@ void onBtnUp(){
             }else if(period == Cfg().consumption3){
                 owen.setTargetPumpPeriod(Cfg().consumption4);
             }
+        }else{
+            monitor.setConstTempMode(true);
         }
     }
 }
 
 void onBtnDown(){
     owen.resetTemp();
-    if(monitor.menuMode()){
+
+    if(monitor.constTempMode()){
+        Cfg().constTemp -= 1;
+        monitor.restartTempCounter();
+    }else if(monitor.menuMode()){
         monitor.downItem();
     }else{
         if(owen.pump() && !Cfg().embededPump){
@@ -129,6 +150,8 @@ void onBtnDown(){
             }else if(period == Cfg().consumption2){
                 owen.setTargetPumpPeriod(Cfg().consumption1);
             }
+        }else{
+            monitor.setConstTempMode(true);
         }
     }
 }
@@ -160,7 +183,14 @@ void onBtnPwr(){
 }
 
 void onEncoderPlus(bool fast){
-    if(monitor.menuMode()){
+    if(monitor.constTempMode()){
+        Cfg().constTemp += fast ? 5 : 1;
+        monitor.restartTempCounter();
+    }else if(kbdConfigMode){
+        btnSettingNumber() += 1;
+        if(btnSettingNumber() > 4)
+            btnSettingNumber() = 0;
+    }else if(monitor.menuMode()){
         monitor.increaseValue(owen, fast);
     }else{
         programLaunch.stop();
@@ -171,7 +201,14 @@ void onEncoderPlus(bool fast){
 }
 
 void onEncoderMinus(bool fast){
-    if(monitor.menuMode()){
+    if(monitor.constTempMode()){
+        Cfg().constTemp -= fast ? 5 : 1;
+        monitor.restartTempCounter();
+    }else if(kbdConfigMode){
+        btnSettingNumber() -= 1;
+        if(btnSettingNumber() < 0)
+            btnSettingNumber() = 4;
+    }else if(monitor.menuMode()){
         monitor.decreaseValue(owen, fast);
     }else{
         programLaunch.stop();
@@ -206,17 +243,30 @@ void onBtnLeft(){
 }
 
 void onEncoderClick(){
-    monitor.setMenuMode(!monitor.menuMode());
-    if(!monitor.menuMode() && monitor.settingsChanged()){
-        saveConfig();
-        monitor.setSettingsChanged(false);
+    if(kbdConfigMode){
+//        monitor.setBtnConfigMode(false);
+    }else{
+        monitor.setMenuMode(!monitor.menuMode());
+        if(!monitor.menuMode() && monitor.settingsChanged()){
+            saveConfig();
+            monitor.setSettingsChanged(false);
+        }
     }
 }
 
 void onEncoderLongClick(){
-    if(monitor.menuMode()){
-//        owen.setFuelCorrection(0);
+    if(kbdConfigMode){
+        monitor.setBtnConfigMode(false);
     }else{
-
+        //update kbd resistance
+        kbdConfigMode = true;
+        btnSettingNumber() = 0;
+        monitor.setBtnConfigMode(true);
+        btns.setBtnConfigMode(true);
     }
+//    if(monitor.menuMode()){
+//        owen.setFuelCorrection(0);
+//    }else{
+
+//    }
 }

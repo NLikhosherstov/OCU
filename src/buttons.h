@@ -23,11 +23,15 @@ public:
 
 public:
     Button button();
+    void updateBtnData();
+    void setBtnConfigMode(bool newBtnConfigMode);
 
 private:
+    bool m_btnConfigMode;
 
 private:
     int get_key(int value);
+    int get_keyFromCfg(int value);
 };
 
 #endif // BUTTONS_H

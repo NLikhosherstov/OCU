@@ -15,7 +15,8 @@ public:
         Ignition,       //Зажигание
         WarmingUp,      //Нагрев
         Cooling,        //Продувка
-        SilentCooling   //Продувка на малых оборотах
+        SilentCooling,  //Продувка на малых оборотах
+        Thermostating   //Термостатирование
     };
 
 public:

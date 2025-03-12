@@ -30,13 +30,26 @@ public:
     bool settingsChanged() const;
     void setSettingsChanged(bool newSettingsChanged);
 
+    void setBtnConfigMode(bool newBtnConfigMode);
+
+    bool btnConfigMode() const;
+
+    bool constTempMode() const;
+    void setConstTempMode(bool newConstTempMode);
+
+    void restartTempCounter();
+
 private:
     bool m_menuMode = false;
+    bool m_btnConfigMode = false;
     bool m_settingsChanged = false;
+    bool m_constTempMode = false;
     char m_currentItem = 0;
     char m_itemsCount = 12;
 
 private:
+    void showTempConstData();
+    void showBtnConfigData();
     void showOwenData(const Owen &owen);
     void showMenuData();
 };

@@ -16,39 +16,42 @@ void ProgramLaunch2::update(Owen &owen){
 
     switch(state())
     {
-        case StandBy       : standBy(owen);     break;
-        case FuelSupply    : fuelSupply(owen);  break;
-        case Ignition      : ignition(owen);    break;
-        case WarmingUp     : warmingUp(owen);   break;
-        case Cooling       : startEngine(owen); break;
-        case SilentCooling :                    break;
+        case StandBy       : standBy(owen);         break;
+        case FuelSupply    : fuelSupply(owen);      break;
+        case Ignition      : ignition(owen);        break;
+        case WarmingUp     : warmingUp(owen);       break;
+        case Cooling       : startEngine(owen);     break;
+        case SilentCooling :                        break;
+        case Thermostating : thermostating(owen);   break;
+    }
+}
+
+void ProgramLaunch2::thermostating(Owen &owen){
+    if(owen.automatic() && !m_stopped){
+        if(spaceT() >= Cfg().constTemp){
+            if(owen.currentEngineSpeed() != Cfg().speed2){
+                owen.setEngineSpeed(Cfg().speed2);
+            }
+        }else if(spaceT() <= Cfg().constTemp-2){
+            if(owen.currentEngineSpeed() != Cfg().speed3){
+                owen.setEngineSpeed(Cfg().speed3);
+            }
+        }
     }
 }
 
 void ProgramLaunch2::standBy(Owen &owen){
     if(owen.automatic() && !m_stopped){
-        if(!m_fullPower){
-            if(owen.currTemp() == 0){
-                if(timeout() > ((uint64_t)120 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
-                    owen.setEngineSpeed(Cfg().speed4);
-                    m_fullPower = true;
-                }
-            }else if(owen.currTemp() >= 45){
+        if(owen.currTemp() == 0){
+            if(timeout() > ((uint64_t)120 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
                 owen.setEngineSpeed(Cfg().speed4);
-                m_fullPower = true;
-            }else if(timeout() > ((uint64_t)90 * (uint64_t)1000)){
-                owen.calcPumpPeriod(Cfg().speed3);
+                set_state(Thermostating);
             }
-        }
-
-        if(m_fullPower){
-            if(spaceT() >= 25){
-                if(owen.currentEngineSpeed() == Cfg().speed4){
-                    owen.setEngineSpeed(Cfg().speed2);
-                }
-            }else{
-                m_fullPower = false;
-            }
+        }else if(owen.currTemp() >= 45){
+            owen.setEngineSpeed(Cfg().speed4);
+            set_state(Thermostating);
+        }else if(timeout() > ((uint64_t)90 * (uint64_t)1000)){
+            owen.calcPumpPeriod(Cfg().speed3);
         }
     }
 }
@@ -57,7 +60,6 @@ void ProgramLaunch2::startEngine(Owen &owen){
     owen.startEngine();
     owen.setAutomatic(true);
     if (timeout() > (3000)){ //ждем 3 сек на разгон двигателя
-        m_fullPower = false;
         owen.startIgnition();
         set_state(Ignition);
     }

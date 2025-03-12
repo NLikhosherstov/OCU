@@ -4,6 +4,8 @@
 //Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 GyverOLED<SSD1306_128x64, /*OLED_NO_BUFFER*/OLED_BUFFER> display;
 
+static short counterTemp = 0;
+
 Monitor::Monitor(){
 }
 
@@ -15,34 +17,104 @@ void Monitor::start(){
 }
 
 void Monitor::updateData(const Owen &owen){
+    if(counterTemp >= 15){
+        counterTemp = 0;
+        setConstTempMode(false);
+        saveConfig();
+    }
+
     display.clear();
+    display.invertText(false);
 
-    /***HEADER***/
-    /*********************************ACTIVITY****************************************/
-        if(owen.automatic()){
-            display.drawBitmap( 0, 0, auto_19x8, 19, 8, BITMAP_NORMAL, BUF_ADD);
-        }
-    /*********************************************************************************/
-    /*********************************OWEN TEMP****************************************/
-        display.drawBitmap(80 - PIC_WIDTH - 2, 0, tempOwen_7x7, PIC_WIDTH, PIC_HEIGHT, BITMAP_NORMAL, BUF_ADD);
-        display.setScale(1);
-        display.setCursorXY(82, 0);
-        display.print((int)owen.currTemp());
-    /******************************************************************************/
-    /*********************************SPACE TEMP***************************************/
-        display.drawBitmap(116 - PIC_WIDTH - 1, 0, tempSpace_7x7, PIC_WIDTH, PIC_HEIGHT, BITMAP_NORMAL, BUF_ADD);
-        display.setScale(1);
-        display.setCursorXY(117, 0);
-        display.print((int)spaceT());
-    /*********************************************************************************/
-
-    if(menuMode()){
-        showMenuData();
+    if(m_btnConfigMode){
+        showBtnConfigData();
     }else{
-        showOwenData(owen);
+        /***HEADER***/
+        /*********************************ACTIVITY****************************************/
+            if(owen.automatic()){
+                display.drawBitmap( 0, 0, auto_19x8, 19, 8, BITMAP_NORMAL, BUF_ADD);
+            }
+        /*********************************************************************************/
+        /*********************************OWEN TEMP****************************************/
+            display.drawBitmap(80 - PIC_WIDTH - 2, 0, tempOwen_7x7, PIC_WIDTH, PIC_HEIGHT, BITMAP_NORMAL, BUF_ADD);
+            display.setScale(1);
+            display.setCursorXY(82, 0);
+            display.print((int)owen.currTemp());
+        /******************************************************************************/
+        /*********************************SPACE TEMP***************************************/
+            display.drawBitmap(116 - PIC_WIDTH - 1, 0, tempSpace_7x7, PIC_WIDTH, PIC_HEIGHT, BITMAP_NORMAL, BUF_ADD);
+            display.setScale(1);
+            display.setCursorXY(117, 0);
+            display.print((int)spaceT());
+        /*********************************************************************************/
+
+        if(menuMode()){
+            showMenuData();
+        }else if(constTempMode()){
+            showTempConstData();
+            counterTemp++;
+        }else{
+            showOwenData(owen);
+        }
     }
 
     display.update();
+}
+
+void Monitor::showBtnConfigData(){
+    String s;
+
+    s = F("Button resistance:");
+    display.setScale(1);
+    display.setCursorXY(1, 6);
+    display.print(s);
+
+    display.setCursorXY(0, 16);
+    display.invertText(btnSettingNumber() == 0);
+    display.print(Cfg().btnPower);
+    display.setCursorXY(0, 26);
+    display.invertText(btnSettingNumber() == 1);
+    display.print(Cfg().btnUp);
+    display.setCursorXY(0, 36);
+    display.invertText(btnSettingNumber() == 2);
+    display.print(Cfg().btnIgnition);
+    display.setCursorXY(0, 46);
+    display.invertText(btnSettingNumber() == 3);
+    display.print(Cfg().btnPump);
+    display.setCursorXY(0, 56);
+    display.invertText(btnSettingNumber() == 4);
+    display.print(Cfg().btnDown);
+
+    display.invertText(false);
+    display.setScale(2);
+    display.setCursorXY(45, 30);
+    if(btnSettingNumber() == 0){
+        s = F("PWR");
+    }else if(btnSettingNumber() == 1){
+        s = F("UP");
+    }else if(btnSettingNumber() == 2){
+        s = F("IGN");
+    }else if(btnSettingNumber() == 3){
+        s = F("PUMP");
+    }else if(btnSettingNumber() == 4){
+        s = F("DWN");
+    }
+
+    display.print(s);
+}
+
+void Monitor::showTempConstData()
+{
+    String s;
+
+    s = F("Thermostat value:");
+    display.setCursorXY(0, 12);
+    display.print(s);
+
+    s = F(" C");
+    display.setScale(2);
+    display.setCursorXY(45, 30);
+    display.print(String(Cfg().constTemp) + s);
 }
 
 void Monitor::showOwenData(const Owen &owen)
@@ -295,6 +367,26 @@ bool Monitor::settingsChanged() const{
 
 void Monitor::setSettingsChanged(bool newSettingsChanged){
     m_settingsChanged = newSettingsChanged;
+}
+
+void Monitor::setBtnConfigMode(bool newBtnConfigMode){
+    m_btnConfigMode = newBtnConfigMode;
+}
+
+bool Monitor::btnConfigMode() const{
+    return m_btnConfigMode;
+}
+
+bool Monitor::constTempMode() const{
+    return m_constTempMode;
+}
+
+void Monitor::setConstTempMode(bool newConstTempMode){
+    m_constTempMode = newConstTempMode;
+}
+
+void Monitor::restartTempCounter(){
+    counterTemp = 0;
 }
 
 void Monitor::showError(const String &/*str*/){

@@ -13,6 +13,7 @@ public:
     bool isStopped() const;
 
 private:
+    void thermostating(Owen & owen);
     void standBy(Owen & owen);
     void startEngine(Owen & owen);
     void ignition(Owen & owen);
@@ -21,7 +22,6 @@ private:
 
 private:
     bool m_blockPwmControl = false;
-    bool m_fullPower = false;
     bool m_stopped = true;
 };
 

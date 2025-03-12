@@ -39,6 +39,14 @@ namespace Config{
         short  consumption2 = 252;      //Интервал работы насоса на 2й скорости в мс
         short  consumption3 = 190;      //Интервал работы насоса на 3й скорости в мс
         short  consumption4 = 153;      //Интервал работы насоса на 4й скорости в мс
+
+        int btnPower    = 0;
+        int btnUp       = 0;
+        int btnIgnition = 0;
+        int btnPump     = 0;
+        int btnDown     = 0;
+
+        short constTemp = 23;
     };
 
     class Singleton
@@ -52,6 +60,7 @@ namespace Config{
 
         ConfigStruct data = ConfigStruct();
         char m_currentSpaceT = 0;
+        short m_currentBtnSetting = -1;
 
       private:
         Singleton() { }
@@ -64,6 +73,7 @@ namespace Config{
 
 #define DATA_FLAG 0xAC
 inline Config::ConfigStruct& Cfg(){ return Config::Singleton::inst().data; }
+inline short& btnSettingNumber(){ return Config::Singleton::inst().m_currentBtnSetting; }
 inline char& spaceT(){ return Config::Singleton::inst().m_currentSpaceT; }
 inline void loadConfig(){
     if (EEPROM.read(0x0) == DATA_FLAG) {    // Проверяем наличие маркера
