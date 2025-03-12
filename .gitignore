@@ -4,3 +4,4 @@ test/
 .qtc_clangd/
 *.pdsbak
 *.workspace
+*.bak
