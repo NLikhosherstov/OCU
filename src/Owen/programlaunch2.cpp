@@ -43,13 +43,15 @@ void ProgramLaunch2::thermostating(Owen &owen){
 void ProgramLaunch2::standBy(Owen &owen){
     if(owen.automatic() && !m_stopped){
         if(owen.currTemp() == 0){
-            if(timeout() > ((uint64_t)120 * (uint64_t)1000)){ //через 1м30сек на максимальную мощность
+            if(timeout() > ((uint64_t)60 * (uint64_t)1000)){ //через 1м00сек на максимальную мощность
                 owen.setEngineSpeed(Cfg().speed4);
-                set_state(Thermostating);
+                if(spaceT() >= Cfg().constTemp)
+                    set_state(Thermostating);
             }
         }else if(owen.currTemp() >= 45){
             owen.setEngineSpeed(Cfg().speed4);
-            set_state(Thermostating);
+            if(spaceT() >= Cfg().constTemp)
+                set_state(Thermostating);
         }else if(timeout() > ((uint64_t)90 * (uint64_t)1000)){
             owen.calcPumpPeriod(Cfg().speed3);
         }
@@ -68,7 +70,7 @@ void ProgramLaunch2::startEngine(Owen &owen){
 void ProgramLaunch2::ignition(Owen &owen){
     if (timeout() > (5000)){     //перед подачей топлива ждем около 5 сек для разогрева свечи
         owen.startPump();
-        owen.calcPumpPeriod(Cfg().speed3);
+        owen.calcPumpPeriod(Cfg().speed2);
         set_state(FuelSupply);
     }
 }

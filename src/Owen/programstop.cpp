@@ -32,10 +32,12 @@ void ProgramStop::handle_Cooling(Owen &owen){
         owen.setEngineSpeed(Cfg().speed4);//макс скорость двигателя
     }
 
-    if(int(owen.currTemp()) == 0 && timeout() > (60 * 1000)){
-        owen.stopEngine();
-        owen.setAutomatic(false);
-        set_state(StandBy);
+    if(int(owen.currTemp()) == 0){
+        if(timeout() > 60000){
+            owen.stopEngine();
+            owen.setAutomatic(false);
+            set_state(StandBy);
+        }
     }else if(owen.currTemp() < 40.0){
         owen.stopEngine();
         owen.setAutomatic(false);

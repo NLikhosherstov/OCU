@@ -133,25 +133,25 @@ void Monitor::showOwenData(const Owen &owen)
         display.drawBitmap( 0, 12, fan_24x24, ICO_WIDTH, ICO_HEIGHT, BITMAP_NORMAL, BUF_ADD);
         display.setScale(2);
         display.setCursorXY(ICO_WIDTH+5, 16);
-        short currentPercantage = map(owen.targetPWM(), 0, 254, 0, 100);
+        short currentPWM = owen.targetPWM();
         short spacing = 2;
         short margin = ICO_WIDTH+5;
         short rectWidth = 15;
         short pen = OLED_FILL;
 
-        if(currentPercantage < 55) pen = OLED_STROKE;
+        if(currentPWM < Cfg().speed1) pen = OLED_STROKE;
         display.roundRect(margin, 28, margin+rectWidth, 34, pen);
 
         margin = margin + rectWidth + spacing;
-        if(currentPercantage < 70) pen = OLED_STROKE;
+        if(currentPWM < Cfg().speed2) pen = OLED_STROKE;
         display.roundRect(margin, 24, margin+rectWidth, 34, pen);
 
         margin = margin + rectWidth + spacing;
-        if(currentPercantage < 85) pen = OLED_STROKE;
+        if(currentPWM < Cfg().speed3) pen = OLED_STROKE;
         display.roundRect(margin, 19, margin+rectWidth, 34, pen);
 
         margin = margin + rectWidth + spacing;
-        if(currentPercantage < 99) pen = OLED_STROKE;
+        if(currentPWM < Cfg().speed4) pen = OLED_STROKE;
         display.roundRect(margin, 14, margin+rectWidth, 34, pen);
     /*********************************************************************************/
     /*********************************FUEL RATE***************************************/

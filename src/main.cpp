@@ -171,12 +171,18 @@ void onBtnPwr(){
                 programStop.execute();
             }
         }else{
-            if(programLaunch.isStopped()){
+            if(programStop.state() == ProgramBase::Cooling && int(owen.currTemp()) == 0){
                 programStop.stop();
-                programLaunch.execute();
+                owen.stopEngine();
+                owen.setAutomatic(false);
             }else{
-                programLaunch.stop();
-                programStop.execute();
+                if(programLaunch.isStopped()){
+                    programStop.stop();
+                    programLaunch.execute();
+                }else{
+                    programLaunch.stop();
+                    programStop.execute();
+                }
             }
         }
     }
